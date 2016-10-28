@@ -48,7 +48,7 @@ void DataInStream(char infname[], chanend c_out)
   for( int y = 0; y < IMHT; y++ ) {
     _readinline( line, IMWD );
     for( int x = 0; x < IMWD; x++ ) {
-      c_out <: line[ x ];
+      c_out <: line[x];
       printf( "-%4.1d ", line[ x ] ); //show image values
     }
     printf( "\n" );

@@ -66,6 +66,7 @@ def print_stats(image):
 
 parser = argparse.ArgumentParser(description='GoL map tool')
 
+parser.add_argument('file', nargs='?', default=None)
 parser.add_argument('-f', '--filename', type=str,
                     help='Path to image')
 parser.add_argument('-s', '--stats', action='store_true',
@@ -81,7 +82,13 @@ parser.add_argument('-o', '--output', type=str,
   
 args = parser.parse_args()
 
-if not args.filename and not args.generate:
+if args.file is not None:
+  args.filename = args.file
+  args.display = True
+  args.stats = True
+
+
+if not args.filename and not args.generate and not args.file:
   parser.error('Must use either --filename or --generate')
 
 if args.filename and args.generate:

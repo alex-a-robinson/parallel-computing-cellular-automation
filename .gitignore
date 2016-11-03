@@ -1,3 +1,4 @@
 *.swp
 .build/
 .settings/
+game_of_life/testout.pgm

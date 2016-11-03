@@ -16,18 +16,34 @@ grid = [
     0, 0, 0, 0, 0, 0, 0, 0
 ]
 
-def farmer(grid, width=8, height=8, num_of_workers=4):
+def farmer(grid, width=8, height=8, num_of_workers=2):
     updated_grid = []
     channels = []
-    workers = [worker] * num_of_workers
     strip_size = height // num_of_workers
 
     for i in range(0,height,strip_size):
-        strip = grid[i * width : (((i + strip_size + 2) % height) * width - 1) % (width*height)]
-        #display(workers[i](strip, strip_size+2, width))
 
-        # updated_grid[(i + 1) * width : (((i + strip_size + 1) % height) * width - 1) % (width*height)] = workers[i](strip, strip_size+2, width)
-        updated_grid += worker(strip, strip_size+2, width)
+        grid_start_index = i * width
+        grid_stop_index = (((i + strip_size + 2) % height) * width - 1 ) % (width*height) +1
+
+        #print(i)
+        #print(grid_start_index , grid_stop_index-1)
+        #print((i + 1) * width , ((i + strip_size + 1) % height) * width)
+
+        if i % (height - strip_size) == 0 and i != 0: #last
+            strip = grid[grid_start_index : height * width]
+            strip += grid[0 : grid_stop_index]
+
+            display (strip)
+            print("")
+            from_worker = worker(strip, strip_size+2, width)
+            display(from_worker) #TODO
+            return []
+            updated_grid = from_worker[(strip_size-1)*width:] + updated_grid + from_worker[:(strip_size-1)*width] # TODO fix output error??
+        else:
+            strip = grid[grid_start_index : grid_stop_index]
+            updated_grid += worker(strip, strip_size+2, width)
+
 
     return updated_grid
 
@@ -54,7 +70,7 @@ def calc_line(line_group):
 # Group is a 3x3 array, returns new value of middle cell
 def calc_cell(cell_group):
     cell = cell_group[4]
-    return cell
+    return cell #TODO remove
     alive_neighbours = sum(cell_group[0:4] + cell_group[5:])
     if alive_neighbours < 2 or alive_neighbours > 3:
         return 0
@@ -68,6 +84,9 @@ def display(grid, width=8):
     for h in range(height):
         print(grid[h*width:(h+1)*width])
 
-grid = list(range(64))
+grid = list(range(64)) 
+print("")
+print("")
 display(farmer(grid))
+print("")
 #display(worker(list(range(64))))

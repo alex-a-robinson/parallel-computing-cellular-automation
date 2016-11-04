@@ -7,6 +7,7 @@ from sys import exit
 import math
 
 def split_into_strips(grid, width, height, workers_available):
+
     # only one worker
     if workers_available == 1:
         return [grid[(height-1) * width:] + grid + grid[:width]]
@@ -19,13 +20,11 @@ def split_into_strips(grid, width, height, workers_available):
         last = (i >= (height - strip_size))
 
         # Alter the strip size if workers dosen't perfectly devide height
-        if last and (height / workers_required) % 1 != 0:
-            strip_size = math.floor(height / strip_size)
+        if last and height % strip_size != 0:
+            strip_size = height % strip_size
 
         grid_start_index = i * width
         grid_stop_index = (((i + strip_size + 2) % height) * width - 1 ) % (width*height) +1
-
-        print(grid_start_index, grid_stop_index)
 
         if grid_start_index > grid_stop_index:
             strip = grid[grid_start_index:] + grid[0 : grid_stop_index]
@@ -35,7 +34,10 @@ def split_into_strips(grid, width, height, workers_available):
 
     return strips
 
-def farmer(grid, width=8, height=8, num_of_workers=2):
+def farmer(grid, width, num_of_workers=2):
+    assert len(grid) % width == 0
+    height = len(grid) // width
+
     updated_grid = []
     strips = split_into_strips(grid, width, height, num_of_workers)
     num_of_workers = len(strips)
@@ -45,7 +47,8 @@ def farmer(grid, width=8, height=8, num_of_workers=2):
         strip_size = (len(strip) // width) - 2
         updated_strip = worker(strip, strip_size, width)
 
-        if num_of_workers != 1 and i == num_of_workers - 1:
+
+        if num_of_workers != 1 and i == num_of_workers - 1: # last
             updated_grid = updated_strip[(strip_size-1)*width:] + updated_grid + updated_strip[:(strip_size-1)*width]
         else: # all others can just append
             updated_grid += updated_strip

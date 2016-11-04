@@ -1,5 +1,6 @@
 from grids import *
 from strip_farm import *
+from utils import *
 
 
 class TestCalcCell():
@@ -46,6 +47,8 @@ class TestCalcLine():
 
 
 class TestWorker():
+    '''Test worker'''
+
     def test_step_size_1(self):
         assert worker(line_group_8_3_zeros,1,8) == line_8_1_zeros
         assert worker(line_group_8_3_ones,1,8) == line_8_1_zeros
@@ -61,40 +64,52 @@ class TestWorker():
 
 
 class TestFarmer():
+    '''Test farmer'''
 
     def test_all_dead(self):
-        assert farmer(grid_8_8_ones) == grid_8_8_zeros
-        assert farmer(grid_8_8_zeros) == grid_8_8_zeros
+        assert farmer(grid_8_8_ones, 8) == grid_8_8_zeros
+        assert farmer(grid_8_8_zeros, 8) == grid_8_8_zeros
 
     def test_alternating(self):
-        assert farmer(grid_8_8_alternating) == grid_8_8_zeros
-        assert farmer(grid_8_8_alternating_inverse) == grid_8_8_zeros
+        assert farmer(grid_8_8_alternating, 8) == grid_8_8_zeros
+        assert farmer(grid_8_8_alternating_inverse, 8) == grid_8_8_zeros
 
     def test_strips(self):
-        assert farmer(grid_8_8_strips) == grid_8_8_strips
-        assert farmer(grid_8_8_strips_inverse) == grid_8_8_strips_inverse
+        assert farmer(grid_8_8_strips, 8) == grid_8_8_strips
+        assert farmer(grid_8_8_strips_inverse, 8) == grid_8_8_strips_inverse
 
-    def test_glider(self):
-        assert farmer(grid_8_8_glider_1) == grid_8_8_glider_2
-        assert farmer(grid_8_8_glider_2) == grid_8_8_glider_3
-        assert farmer(grid_8_8_glider_3) == grid_8_8_glider_4
+    def test_glider_8_8(self):
+        assert farmer(grid_8_8_glider_1, 8) == grid_8_8_glider_2
+        assert farmer(grid_8_8_glider_2, 8) == grid_8_8_glider_3
+        assert farmer(grid_8_8_glider_3, 8) == grid_8_8_glider_4
 
-    def test_double_glider(self):
-        assert farmer(farmer(grid_8_8_glider_1)) == grid_8_8_glider_3
-        assert farmer(farmer(grid_8_8_glider_2)) == grid_8_8_glider_4
+    def test_double_glider_8_8(self):
+        assert farmer(farmer(grid_8_8_glider_1, 8), 8) == grid_8_8_glider_3
+        assert farmer(farmer(grid_8_8_glider_2, 8), 8) == grid_8_8_glider_4
 
-    def test_triple_glider(self):
-        assert farmer(farmer(farmer(grid_8_8_glider_1))) == grid_8_8_glider_4
+    def test_triple_glider_8_8(self):
+        assert farmer(farmer(farmer(grid_8_8_glider_1, 8), 8), 8) == grid_8_8_glider_4
+
+    def test_glider_5_16(self):
+        assert farmer(grid_5_16_glider_1, 5, 1) == grid_5_16_glider_2
+        assert farmer(grid_5_16_glider_1, 5, 4) == grid_5_16_glider_2
+        assert farmer(grid_5_16_glider_1, 5, 5) == grid_5_16_glider_2
+        assert farmer(grid_5_16_glider_1, 5, 7) == grid_5_16_glider_2
+        assert farmer(grid_5_16_glider_1, 5, 8) == grid_5_16_glider_2
+        assert farmer(grid_5_16_glider_1, 5, 10) == grid_5_16_glider_2
+        assert farmer(grid_5_16_glider_1, 5, 16) == grid_5_16_glider_2
+
+
+    def test_glider_16_16(self):
+        assert farmer(grid_16_16_glider_1, 16) == grid_16_16_glider_2
 
     def test_worker_num(self):
-        assert farmer(grid_8_8_glider_1, num_of_workers=1) == grid_8_8_glider_2
-        assert farmer(grid_8_8_glider_1, num_of_workers=2) == grid_8_8_glider_2
-        assert farmer(grid_8_8_glider_1, num_of_workers=4) == grid_8_8_glider_2
-        assert farmer(grid_8_8_glider_1, num_of_workers=8) == grid_8_8_glider_2
-        assert farmer(grid_8_8_glider_1, num_of_workers=3) == grid_8_8_glider_2
-        assert farmer(grid_8_8_glider_1, num_of_workers=5) == grid_8_8_glider_2
-
-
+        assert farmer(grid_8_8_glider_1, 8, num_of_workers=1) == grid_8_8_glider_2
+        assert farmer(grid_8_8_glider_1, 8, num_of_workers=2) == grid_8_8_glider_2
+        assert farmer(grid_8_8_glider_1, 8, num_of_workers=4) == grid_8_8_glider_2
+        assert farmer(grid_8_8_glider_1, 8, num_of_workers=8) == grid_8_8_glider_2
+        assert farmer(grid_8_8_glider_1, 8, num_of_workers=3) == grid_8_8_glider_2
+        assert farmer(grid_8_8_glider_1, 8, num_of_workers=5) == grid_8_8_glider_2
 
 class TestSplitter():
     def test_zeros(self):

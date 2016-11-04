@@ -60,3 +60,16 @@ class TestFarmer():
         assert farmer(grid_8_8_glider_1) == grid_8_8_glider_2
         assert farmer(grid_8_8_glider_2) == grid_8_8_glider_3
         assert farmer(grid_8_8_glider_3) == grid_8_8_glider_4
+
+    def test_double_glider(self):
+        assert farmer(farmer(grid_8_8_glider_1)) == grid_8_8_glider_3
+        assert farmer(farmer(grid_8_8_glider_2)) == grid_8_8_glider_4
+
+    def test_triple_glider(self):
+        assert farmer(farmer(farmer(grid_8_8_glider_1))) == grid_8_8_glider_4
+
+    def test_worker_num(self):
+        assert farmer(grid_8_8_glider_1, num_of_workers=1) == grid_8_8_glider_2
+        assert farmer(grid_8_8_glider_1, num_of_workers=2) == grid_8_8_glider_2
+        assert farmer(grid_8_8_glider_1, num_of_workers=4) == grid_8_8_glider_2
+        #assert farmer(grid_8_8_glider_1, num_of_workers=5) == grid_8_8_glider_2

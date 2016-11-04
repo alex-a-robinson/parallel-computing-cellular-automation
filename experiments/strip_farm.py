@@ -5,29 +5,39 @@ from grids import alive, dead
 import grids
 from sys import exit
 
-def farmer(grid, width=8, height=8, num_of_workers=2):
-    updated_grid = []
-    channels = []
-    strip_size = height // num_of_workers
+def split_into_strips(grid, width, height, strip_size):
+    strips = []
 
-    for i in range(0,height,strip_size):
+    # only one worker
+    if height == strip_size:
+        return [grid[(height-1) * width:] + grid + grid[:width]]
 
+    # multiple workers
+    for i in range(0, height, strip_size):
         grid_start_index = i * width
         grid_stop_index = (((i + strip_size + 2) % height) * width - 1 ) % (width*height) +1
 
-        #print(i)
-        #print(grid_start_index , grid_stop_index-1)
-        #print((i + 1) * width , ((i + strip_size + 1) % height) * width)
-
-        if i % (height - strip_size) == 0 and i != 0: #last
-            strip = grid[grid_start_index : height * width]
+        if height != strip_size and i % (height - strip_size) == 0 and i != 0:  #last
+            strip = grid[grid_start_index:]
             strip += grid[0 : grid_stop_index]
-
-            from_worker = worker(strip, strip_size+2, width)
-            updated_grid = from_worker[(strip_size-1)*width:] + updated_grid + from_worker[:(strip_size-1)*width] # TODO fix output error??
         else:
             strip = grid[grid_start_index : grid_stop_index]
-            updated_grid += worker(strip, strip_size+2, width)
+
+        strips.append(strip)
+
+    return strips
+
+def farmer(grid, width=8, height=8, num_of_workers=2):
+    updated_grid = []
+    strip_size = height // num_of_workers #TODO test if ceiling instead of flooring is better here
+    strips = split_into_strips(grid, width, height, strip_size)
+    for i in range(num_of_workers):
+        updated_strip = worker(strips[i], strip_size+2, width)
+
+        if num_of_workers != 1 and i == num_of_workers - 1: # last needs partial prepend
+            updated_grid = updated_strip[(strip_size-1)*width:] + updated_grid + updated_strip[:(strip_size-1)*width]
+        else: # all others can just append
+            updated_grid += updated_strip
 
     return updated_grid
 
@@ -69,4 +79,4 @@ def calc_cell(cell_group):
         return alive
 
 if __name__ == '__main__':
-    display(farmer(grids.grid_8_8_alternating))
+    display(farmer(farmer(grids.grid_8_8_glider_1)))

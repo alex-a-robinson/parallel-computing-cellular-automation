@@ -1,5 +1,5 @@
 from grids import *
-from strip_farm import calc_cell, calc_line
+from strip_farm import calc_cell, calc_line, farmer
 
 class TestCalcCell():
     '''Test calc_cell'''
@@ -43,6 +43,20 @@ class TestCalcLine():
         assert calc_line(line_group_8_3_zeros_centre_ones) == line_8_1_ones
         assert calc_line(line_group_8_3_ones_centre_zeros) == line_8_1_zeros
 
+class TestFarmer():
+    def test_alternating(self):
+        assert farmer(grid_8_8_alternating) == grid_8_8_zeros
+        assert farmer(grid_8_8_alternating_inverse) == grid_8_8_zeros
 
-class TestWorker():
-    pass
+    def test_all_dead(self):
+        assert farmer(grid_8_8_ones) == grid_8_8_zeros
+        assert farmer(grid_8_8_zeros) == grid_8_8_zeros
+
+    def test_strips(self):
+        assert farmer(grid_8_8_strips) == grid_8_8_strips
+        assert farmer(grid_8_8_strips_inverse) == grid_8_8_strips_inverse
+
+    def test_glider(self):
+        assert farmer(grid_8_8_glider_1) == grid_8_8_glider_2
+        assert farmer(grid_8_8_glider_2) == grid_8_8_glider_3
+        assert farmer(grid_8_8_glider_3) == grid_8_8_glider_4

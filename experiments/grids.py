@@ -1,21 +1,5 @@
 alive = 1
 dead = 0
-
-''' Grids '''
-grid_8_8_range = list(range(64))
-grid_8_8_zeros = [0] * 64
-grid_8_8_ones  = [1] * 64
-grid_editable = [
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0
-]
-
 ''' Cell Groups '''
 cell_group_zeros = [0] * 9
 cell_group_ones  = [1] * 9
@@ -46,8 +30,8 @@ line_group_8_3_zeros_centre_ones = [0] * 8 + [1] * 8 + [0] * 8
 line_group_8_3_ones_centre_zeros = [1] * 8 + [0] * 8 + [1] * 8
 
 # Strips of alive, dead, alive, ..., expected result should be all alive
-line_group_8_3_strips = [1, 0] * 12
-line_group_8_3_strips_inverse = [0, 1] * 12
+line_group_8_3_strips = [0, 1] * 12
+line_group_8_3_strips_inverse = [1, 0] * 12
 
 # Alive, Dead, Alive ... along top and bottom with middle all dead,
 # expected result should be checkerboard
@@ -56,3 +40,70 @@ line_group_8_3_strips_centre_zeros = [1, 0] * 4 + [0] * 8 + [1, 0] * 4
 # Checkerboard, Alive, Dead, Alive ..., expected result should be inverse
 line_group_8_3_checker_board = [1, 0] * 4 + [0, 1] * 4 + [1, 0] * 4
 line_group_8_3_checker_board_inverse = [0, 1] * 4 + [1, 0] * 4 + [0, 1] * 4
+
+
+
+
+
+''' Grids '''
+grid_8_8_range = list(range(64))
+grid_8_8_zeros = [0] * 64
+grid_8_8_ones  = [1] * 64
+grid_8_8_alternating = 4*(line_8_1_alternating + line_8_1_alternating_inverse)
+grid_8_8_alternating_inverse = 4*(line_8_1_alternating_inverse + line_8_1_alternating)
+grid_8_8_strips = [0, 1] * 32
+grid_8_8_strips_inverse = [1, 0] * 32
+
+
+grid_8_8_editable = [
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0
+]
+
+''' loads of gliders'''
+grid_8_8_glider_1 = [
+    1, 0, 0, 0, 0, 0, 0, 0,
+    0, 1, 1, 0, 0, 0, 0, 0,
+    1, 1, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+]
+grid_8_8_glider_2 = [
+    0, 1, 0, 0, 0, 0, 0, 0,
+    0, 0, 1, 0, 0, 0, 0, 0,
+    1, 1, 1, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+]
+grid_8_8_glider_3 = [
+    0, 0, 0, 0, 0, 0, 0, 0,
+    1, 0, 1, 0, 0, 0, 0, 0,
+    0, 1, 1, 0, 0, 0, 0, 0,
+    0, 1, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+]
+grid_8_8_glider_4 = [
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 1, 0, 0, 0, 0, 0,
+    1, 0, 1, 0, 0, 0, 0, 0,
+    0, 1, 1, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+]

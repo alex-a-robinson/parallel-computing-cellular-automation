@@ -3,6 +3,7 @@
 from utils import display
 from grids import alive, dead
 import grids
+from sys import exit
 
 def farmer(grid, width=8, height=8, num_of_workers=2):
     updated_grid = []
@@ -22,11 +23,7 @@ def farmer(grid, width=8, height=8, num_of_workers=2):
             strip = grid[grid_start_index : height * width]
             strip += grid[0 : grid_stop_index]
 
-            display (strip)
-            print("")
             from_worker = worker(strip, strip_size+2, width)
-            display(from_worker) #TODO
-            return []
             updated_grid = from_worker[(strip_size-1)*width:] + updated_grid + from_worker[:(strip_size-1)*width] # TODO fix output error??
         else:
             strip = grid[grid_start_index : grid_stop_index]
@@ -40,7 +37,7 @@ def worker(strip, height=8, width=8):
     updated_strip = []
     for i in range(0, height-2):
         line_group = strip[i*width:(i+3)*width]
-        updated_strip += calc_line(line_group)  #[(i+1)*width:(i+2)*width-1]
+        updated_strip += calc_line(line_group)
     return updated_strip
 
 def calc_line(line_group):
@@ -53,14 +50,16 @@ def calc_line(line_group):
                  lg[i+lw], lg[(i+1) % lw + lw], lg[(i+2) % lw + lw],
                  lg[i+lw*2], lg[(i+1) % lw + lw*2], lg[(i+2) % lw + lw*2]]
 
-        updated_line.append(calc_cell(cell_group))
-
+        if i == lw - 1: # last needs wrapping prepend
+            updated_line = [calc_cell(cell_group)] + updated_line
+        else: # append
+            updated_line = updated_line + [calc_cell(cell_group)]
     return updated_line
 
 def calc_cell(cell_group):
     '''Given 9 cells returns the new value of the middle cell'''
     cell = cell_group[4]
-    return cell #TODO remove
+    #return cell #TODO remove
     alive_neighbours = sum(cell_group[0:4] + cell_group[5:])
     if alive_neighbours < 2 or alive_neighbours > 3:
         return dead
@@ -69,4 +68,5 @@ def calc_cell(cell_group):
     if alive_neighbours == 3:
         return alive
 
-display(farmer(grids.grid_8_8_range))
+if __name__ == '__main__':
+    display(farmer(grids.grid_8_8_alternating))

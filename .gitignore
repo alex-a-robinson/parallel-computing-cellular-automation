@@ -1,3 +1,6 @@
+.cache/
+*.pyc
+__pycache__/
 *.swp
 .build/
 .settings/

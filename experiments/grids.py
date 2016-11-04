@@ -66,6 +66,10 @@ strips2_8_8_half_and_half = [[0]*32 + [1]*16 , [1]*32 + [0]*16]
 
 
 ''' Grids '''
+grid_4_4_diagonal = ([1] + [0]*4) *3 + [1]
+grid_8_8_diagonal = ([1] + [0]*8) *7 + [1]
+grid_512_512_diagonal = ([1] + [0]*512) *511 + [1]
+
 grid_8_8_range = list(range(64))
 grid_8_8_zeros = [0] * 64
 grid_8_8_ones  = [1] * 64
@@ -74,6 +78,7 @@ grid_8_8_alternating = 4*(line_8_1_alternating + line_8_1_alternating_inverse)
 grid_8_8_alternating_inverse = 4*(line_8_1_alternating_inverse + line_8_1_alternating)
 grid_8_8_strips = [0, 1] * 32
 grid_8_8_strips_inverse = [1, 0] * 32
+
 
 grid_4_4_glider_1 = [
     1, 0, 0, 0,

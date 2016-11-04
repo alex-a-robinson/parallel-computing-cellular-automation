@@ -99,7 +99,6 @@ class TestFarmer():
         assert farmer(grid_5_16_glider_1, 5, 10) == grid_5_16_glider_2
         assert farmer(grid_5_16_glider_1, 5, 16) == grid_5_16_glider_2
 
-
     def test_glider_16_16(self):
         assert farmer(grid_16_16_glider_1, 16) == grid_16_16_glider_2
 
@@ -110,6 +109,18 @@ class TestFarmer():
         assert farmer(grid_8_8_glider_1, 8, num_of_workers=8) == grid_8_8_glider_2
         assert farmer(grid_8_8_glider_1, 8, num_of_workers=3) == grid_8_8_glider_2
         assert farmer(grid_8_8_glider_1, 8, num_of_workers=5) == grid_8_8_glider_2
+
+    def test_diagonals(self):
+        for i in range(4,60):
+            diagonal = ([1] + [0]*i) *(i-1) + [1]
+            assert farmer(diagonal,i,2) == diagonal
+
+            # takes ages
+        #assert farmer(grid_512_512_diagonal, 512, 1) == grid_512_512_diagonal
+        #assert farmer(grid_512_512_diagonal, 512, 14) == grid_512_512_diagonal
+        #assert farmer(grid_512_512_diagonal, 512, 100) == grid_512_512_diagonal
+        #assert farmer(grid_512_512_diagonal, 512, 400) == grid_512_512_diagonal
+
 
 class TestSplitter():
     def test_zeros(self):

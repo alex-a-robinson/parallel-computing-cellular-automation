@@ -26,21 +26,27 @@ def split_into_strips(grid, width, height, workers_available):
         grid_start_index = i * width
         grid_stop_index = (((i + strip_size + 2) % height) * width - 1 ) % (width*height) +1
 
-        if grid_start_index > grid_stop_index:
-            strip = grid[grid_start_index:] + grid[0 : grid_stop_index]
+        print(grid_start_index, grid_stop_index)
+
+        if grid_start_index >= grid_stop_index:
+            strip = grid[grid_start_index:] + grid[:grid_stop_index]
         else:
             strip = grid[grid_start_index : grid_stop_index]
         strips.append(strip)
 
     return strips
 
-def farmer(grid, width, num_of_workers=2):
+def farmer(grid, width, num_of_workers=2, steps = 1):
+
     assert len(grid) % width == 0
     height = len(grid) // width
 
     updated_grid = []
     strips = split_into_strips(grid, width, height, num_of_workers)
     num_of_workers = len(strips)
+
+    #for i in range(steps):
+    # TODO: loops where workers feed back into array of size worker
 
     for i in range(num_of_workers):
         strip = strips[i]

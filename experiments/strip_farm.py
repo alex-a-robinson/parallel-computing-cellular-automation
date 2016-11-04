@@ -1,20 +1,8 @@
 #!/usr/bin/env python3
 
-# 1 = Alive
-# 2 = Dead
-
-import math
-
-grid = [
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0
-]
+from utils import display
+from grids import alive, dead
+import grids
 
 def farmer(grid, width=8, height=8, num_of_workers=2):
     updated_grid = []
@@ -44,10 +32,11 @@ def farmer(grid, width=8, height=8, num_of_workers=2):
             strip = grid[grid_start_index : grid_stop_index]
             updated_grid += worker(strip, strip_size+2, width)
 
-
     return updated_grid
 
 def worker(strip, height=8, width=8):
+    '''Given a strip with lines either side returns the new values of the
+       new values of the strip'''
     updated_strip = []
     for i in range(0, height-2):
         line_group = strip[i*width:(i+3)*width]
@@ -55,6 +44,7 @@ def worker(strip, height=8, width=8):
     return updated_strip
 
 def calc_line(line_group):
+    '''Given three lines returns the new values of the centre line'''
     lg = line_group # Shortcut
     updated_line = []
     lw = len(line_group) // 3
@@ -67,26 +57,16 @@ def calc_line(line_group):
 
     return updated_line
 
-# Group is a 3x3 array, returns new value of middle cell
 def calc_cell(cell_group):
+    '''Given 9 cells returns the new value of the middle cell'''
     cell = cell_group[4]
     return cell #TODO remove
     alive_neighbours = sum(cell_group[0:4] + cell_group[5:])
     if alive_neighbours < 2 or alive_neighbours > 3:
-        return 0
+        return dead
     if alive_neighbours == 2:
         return cell
     if alive_neighbours == 3:
-        return 1
+        return alive
 
-def display(grid, width=8):
-    height = len(grid) // width
-    for h in range(height):
-        print(grid[h*width:(h+1)*width])
-
-grid = list(range(64)) 
-print("")
-print("")
-display(farmer(grid))
-print("")
-#display(worker(list(range(64))))
+display(farmer(grids.grid_8_8_range))

@@ -4,48 +4,59 @@ from utils import display
 from grids import alive, dead
 import grids
 from sys import exit
+import math
 
-def split_into_strips(grid, width, height, strip_size):
-    strips = []
-
+def split_into_strips(grid, width, height, workers_available):
     # only one worker
-    if height == strip_size:
+    if workers_available == 1:
         return [grid[(height-1) * width:] + grid + grid[:width]]
 
-    # multiple workers
+    strips = []
+    strip_size = math.ceil(height / workers_available)
+    workers_required = math.ceil(height/strip_size)
+
     for i in range(0, height, strip_size):
+        last = (i >= (height - strip_size))
+
+        # Alter the strip size if workers dosen't perfectly devide height
+        if last and (height / workers_required) % 1 != 0:
+            strip_size = math.floor(height / strip_size)
+
         grid_start_index = i * width
         grid_stop_index = (((i + strip_size + 2) % height) * width - 1 ) % (width*height) +1
 
-        if height != strip_size and i % (height - strip_size) == 0 and i != 0:  #last
-            strip = grid[grid_start_index:]
-            strip += grid[0 : grid_stop_index]
+        print(grid_start_index, grid_stop_index)
+
+        if grid_start_index > grid_stop_index:
+            strip = grid[grid_start_index:] + grid[0 : grid_stop_index]
         else:
             strip = grid[grid_start_index : grid_stop_index]
-
         strips.append(strip)
 
     return strips
 
 def farmer(grid, width=8, height=8, num_of_workers=2):
     updated_grid = []
-    strip_size = height // num_of_workers #TODO test if ceiling instead of flooring is better here
-    strips = split_into_strips(grid, width, height, strip_size)
-    for i in range(num_of_workers):
-        updated_strip = worker(strips[i], strip_size+2, width)
+    strips = split_into_strips(grid, width, height, num_of_workers)
+    num_of_workers = len(strips)
 
-        if num_of_workers != 1 and i == num_of_workers - 1: # last needs partial prepend
+    for i in range(num_of_workers):
+        strip = strips[i]
+        strip_size = (len(strip) // width) - 2
+        updated_strip = worker(strip, strip_size, width)
+
+        if num_of_workers != 1 and i == num_of_workers - 1:
             updated_grid = updated_strip[(strip_size-1)*width:] + updated_grid + updated_strip[:(strip_size-1)*width]
         else: # all others can just append
             updated_grid += updated_strip
 
     return updated_grid
 
-def worker(strip, height=8, width=8):
+def worker(strip, strip_size, width):
     '''Given a strip with lines either side returns the new values of the
        new values of the strip'''
     updated_strip = []
-    for i in range(0, height-2):
+    for i in range(0, strip_size):
         line_group = strip[i*width:(i+3)*width]
         updated_strip += calc_line(line_group)
     return updated_strip
@@ -69,7 +80,7 @@ def calc_line(line_group):
 def calc_cell(cell_group):
     '''Given 9 cells returns the new value of the middle cell'''
     cell = cell_group[4]
-    #return cell #TODO remove
+    #return cell
     alive_neighbours = sum(cell_group[0:4] + cell_group[5:])
     if alive_neighbours < 2 or alive_neighbours > 3:
         return dead

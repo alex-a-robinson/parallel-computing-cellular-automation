@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
 from utils import display
-from grids import alive, dead
 import grids
 from sys import exit
 import math
 
+dead = 0
+alive = 1
 
 def split_into_strips(grid, width, height, workers_available):
 
@@ -57,7 +58,6 @@ def farmer(grid, width, num_of_workers=2, steps=1):
                 if num_of_workers != 1:
                     base += width
                 update_index = (base + cell_index) % (width * height)
-                print(base, update_index)
 
                 updated_grid[update_index] = updated_strip[cell_index]
 

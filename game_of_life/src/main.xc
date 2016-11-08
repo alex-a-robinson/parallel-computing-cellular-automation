@@ -40,6 +40,7 @@ void distributor(chanend c_in, chanend c_out, chanend fromAcc) {
 // Orchestrate concurrent system and start up all threads
 int main(void) {
 
+/*
 i2c_master_if i2c[1];               //interface to orientation
 
 char infname[] = "test.pgm";     //put your input image path here
@@ -53,6 +54,7 @@ par {
     DataOutStream(outfname, c_outIO);       //thread to write out a PGM image
     distributor(c_inIO, c_outIO, c_control);//thread to coordinate work on image
   }
+  */
 
   return 0;
 }

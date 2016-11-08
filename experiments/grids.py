@@ -1,12 +1,11 @@
-alive = 1
-dead = 0
+
 ''' Cell Groups '''
 cell_group_zeros = [0] * 9
 cell_group_ones  = [1] * 9
 cell_group_range = list(range(9))
-cell_group_centre_alive = [0, 0, 0, 0, 1, 0, 0, 0, 0]
-cell_group_no_change_dead = [0, 1, 0, 0, 0, 0, 0, 1, 0]
-cell_group_no_change_alive = [0, 1, 0, 0, 1, 0, 0, 1, 0]
+cell_group_centre_1 = [0, 0, 0, 0, 1, 0, 0, 0, 0]
+cell_group_no_change_0 = [0, 1, 0, 0, 0, 0, 0, 1, 0]
+cell_group_no_change_1 = [0, 1, 0, 0, 1, 0, 0, 1, 0]
 cell_group_born = [0, 1, 0, 0, 0, 1, 0, 1, 0]
 cell_group_overpopulated = [0, 1, 1, 0, 1, 1, 0, 1, 0]
 
@@ -28,15 +27,15 @@ line_group_4_3_range = list(range(12))
 line_group_8_3_zeros_centre_ones = [0] * 8 + [1] * 8 + [0] * 8
 line_group_8_3_ones_centre_zeros = [1] * 8 + [0] * 8 + [1] * 8
 
-# Strips of alive, dead, alive, ..., expected result should be all alive
+# Strips of 1, 0, 1, ..., expected result should be all 1
 line_group_8_3_strips = [0, 1] * 12
 line_group_8_3_strips_inverse = [1, 0] * 12
 
-# Alive, Dead, Alive ... along top and bottom with middle all dead,
+# 1, 0, 1 ... along top and bottom with middle all 0,
 # expected result should be checkerboard
 line_group_8_3_strips_centre_zeros = [1, 0] * 4 + [0] * 8 + [1, 0] * 4
 
-# Checkerboard, Alive, Dead, Alive ..., expected result should be inverse
+# Checkerboard, 1, 0, 1 ..., expected result should be inverse
 line_group_8_3_checker_board = [1, 0] * 4 + [0, 1] * 4 + [1, 0] * 4
 line_group_8_3_checker_board_inverse = [0, 1] * 4 + [1, 0] * 4 + [0, 1] * 4
 
@@ -230,3 +229,7 @@ grid_16_16_glider_2 = [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 ]
+
+# diagonals = []
+# for i in range(2,50,10):
+#    diagonals += [([1] + [0] * i) * (i - 1) + [1]]

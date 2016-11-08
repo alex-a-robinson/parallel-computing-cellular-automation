@@ -6,15 +6,16 @@ import grids
 from sys import exit
 import math
 
+
 def split_into_strips(grid, width, height, workers_available):
 
     # only one worker
     if workers_available == 1:
-        return [grid[(height-1) * width:] + grid + grid[:width]]
+        return [grid[(height - 1) * width:] + grid + grid[:width]]
 
     strips = []
     strip_size = math.ceil(height / workers_available)
-    workers_required = math.ceil(height/strip_size)
+    workers_required = math.ceil(height / strip_size)
 
     for i in range(0, height, strip_size):
         last = (i >= (height - strip_size))
@@ -24,72 +25,80 @@ def split_into_strips(grid, width, height, workers_available):
             strip_size = height % strip_size
 
         grid_start_index = i * width
-        grid_stop_index = (((i + strip_size + 2) % height) * width - 1 ) % (width*height) +1
-
-        print(grid_start_index, grid_stop_index)
+        grid_stop_index = (((i + strip_size + 2) % height) * width - 1) % (width * height) + 1
 
         if grid_start_index >= grid_stop_index:
             strip = grid[grid_start_index:] + grid[:grid_stop_index]
         else:
-            strip = grid[grid_start_index : grid_stop_index]
+            strip = grid[grid_start_index: grid_stop_index]
         strips.append(strip)
 
     return strips
 
-def farmer(grid, width, num_of_workers=2, steps = 1):
 
+def farmer(grid, width, num_of_workers=2, steps=1):
     assert len(grid) % width == 0
     height = len(grid) // width
 
-    updated_grid = []
-    strips = split_into_strips(grid, width, height, num_of_workers)
-    num_of_workers = len(strips)
+    for step in range(steps):
+        updated_grid = [2] * width * height
+        strips = split_into_strips(grid, width, height, num_of_workers)
+        num_of_workers = len(strips)
 
-    #for i in range(steps):
-    # TODO: loops where workers feed back into array of size worker
+        # each step calculated by parralell workers
+        for worker_num in range(num_of_workers):  # will be par
+            strip = strips[worker_num]
+            base_strip_size = (len(strips[0]) // width) - 2
+            strip_size = (len(strip) // width) - 2
+            updated_strip = worker(strip, strip_size, width)
 
-    for i in range(num_of_workers):
-        strip = strips[i]
-        strip_size = (len(strip) // width) - 2
-        updated_strip = worker(strip, strip_size, width)
+            for cell_index in range(len(updated_strip)):
+                base = worker_num * base_strip_size * width
+                if num_of_workers != 1:
+                    base += width
+                update_index = (base + cell_index) % (width * height)
+                print(base, update_index)
 
+                updated_grid[update_index] = updated_strip[cell_index]
 
-        if num_of_workers != 1 and i == num_of_workers - 1: # last
-            updated_grid = updated_strip[(strip_size-1)*width:] + updated_grid + updated_strip[:(strip_size-1)*width]
-        else: # all others can just append
-            updated_grid += updated_strip
+        grid = updated_grid
 
-    return updated_grid
+    display(grid)
+
+    return grid
+
 
 def worker(strip, strip_size, width):
     '''Given a strip with lines either side returns the new values of the
        new values of the strip'''
     updated_strip = []
     for i in range(0, strip_size):
-        line_group = strip[i*width:(i+3)*width]
+        line_group = strip[i * width:(i + 3) * width]
         updated_strip += calc_line(line_group)
     return updated_strip
 
+
 def calc_line(line_group):
     '''Given three lines returns the new values of the centre line'''
-    lg = line_group # Shortcut
+    lg = line_group  # Shortcut
     updated_line = []
     lw = len(line_group) // 3
     for i in range(lw):
-        cell_group = [lg[i], lg[(i+1) % lw], lg[(i+2) % lw],
-                 lg[i+lw], lg[(i+1) % lw + lw], lg[(i+2) % lw + lw],
-                 lg[i+lw*2], lg[(i+1) % lw + lw*2], lg[(i+2) % lw + lw*2]]
+        cell_group = [lg[i], lg[(i + 1) % lw], lg[(i + 2) % lw],
+                      lg[i + lw], lg[(i + 1) % lw + lw], lg[(i + 2) % lw + lw],
+                      lg[i + lw * 2], lg[(i + 1) % lw + lw * 2], lg[(i + 2) % lw + lw * 2]]
 
-        if i == lw - 1: # last needs wrapping prepend
+        if i == lw - 1:  # last needs wrapping prepend
             updated_line = [calc_cell(cell_group)] + updated_line
-        else: # append
+        else:  # append
             updated_line = updated_line + [calc_cell(cell_group)]
     return updated_line
+
 
 def calc_cell(cell_group):
     '''Given 9 cells returns the new value of the middle cell'''
     cell = cell_group[4]
-    #return cell
+    # return cell
     alive_neighbours = sum(cell_group[0:4] + cell_group[5:])
     if alive_neighbours < 2 or alive_neighbours > 3:
         return dead

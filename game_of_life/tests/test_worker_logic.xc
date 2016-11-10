@@ -55,10 +55,9 @@ void test_worker() {
     //uint grid_32_8_columns_inv[8] = {0x55555555, 0x55555555, 0x55555555, 0x55555555, 0x55555555, 0x55555555, 0x55555555, 0x55555555};
     uint strip_32_4_zeros[4] = {0,0,0,0};
     uint updated_strip[4];
-
+    //TODO add channels
     worker(grid_32_8_zeros, updated_strip, 0, 32*4, 32, 8);
     ASSERT("worker(grid_32_8_zeros)",compare_arrays(updated_strip, strip_32_4_zeros, 4));
-
 }
 
 int main(void) {

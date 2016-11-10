@@ -44,7 +44,7 @@ uint calc_cell(uint index, uint strip[], uint width, uint height) {
 
 
 
- void worker(uint grid[], uint ** updated_strip, uint start_index, uint number_of_cells, uint width, uint height) {
+ void worker(uint grid[], uint updated_strip[], uint start_index, uint number_of_cells, uint width, uint height) {
     //Given a strip with lines either side returns the new values of the new values of the strip
     for (uint i = 0; i < number_of_cells; i++ ){
 		printf("%i-%i ",i, calc_cell((i+start_index) % (width*height), grid, width, height));
@@ -65,7 +65,7 @@ uint calc_cell(uint index, uint strip[], uint width, uint height) {
 	 uint updated_strips[4][32*4]; // TODO: change to  [workers_required][cells_in_strip]
 	 for (uint i=0 ; i < workers_required ; i++){ //TODO make par
 		 worker(grid, updated_strips[i], i * strip_size * width, strip_size * width, width, height);
-	 }
+	 }//TODO: start channels as arays aren't working
 
 
 }

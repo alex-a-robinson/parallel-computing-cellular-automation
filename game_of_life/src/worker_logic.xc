@@ -21,7 +21,7 @@ uint calc_cell(uint index, uint strip[], uint width) {
 	for (int r=-1; r < 2; r++) {
 		uint row_scaler = (index / width + r) * width;
 		for (int c=-1; c < 2; c++) {
-			uint neighbour_index = (index + c) % width + row_scaler;
+			uint neighbour_index = ((index + c) % width + row_scaler)) % (width*height);
 			if (!(r == 0 && c == 0)) {
 				sum += get_bit(strip, neighbour_index);
 			}
@@ -44,14 +44,14 @@ uint calc_cell(uint index, uint strip[], uint width) {
 
 
 
- void worker(uint strip[], uint updated_strip[], uint strip_height, uint width) {
+ void worker(uint grid[], uint updated_strip[], uint start_index, uint number_of_cells, uint height, uint width) {
     //Given a strip with lines either side returns the new values of the new values of the strip
-    for (uint i = 0  ; i < strip_height*width ; i++ ){
-		updated_strip[i] = calc_cell(i+width, strip, width);
-	}
+    for (uint i = start_index; i < start_index + number_of_cells; i++ ){
+		 updated_strip = calc_cell(start_index % (width*height), grid, width);
+
  }
 
- void farmer(uint grid[], uint strips[]; uint width, uint height, uint workers_available) {
+ void farmer(uint grid[], uint strips[]]; uint width, uint height, uint workers_available) {
      if workers_available == 1:
          return [grid[(height - 1) * width:] + grid + grid[:width]]
 

@@ -14,7 +14,7 @@ uint get_bit(uint array[], uint index) {
 }
 
 // Finds neighbours, sums and returns new value
-uint calc_cell(uint index, uint strip[], const static uint width) {
+uint calc_cell(uint index, uint strip[], uint width) {
 	uint sum = 0;
 
 	// TODO: Opptimise with static indexs
@@ -41,6 +41,42 @@ uint calc_cell(uint index, uint strip[], const static uint width) {
     }
 }
 
+
+
+
+ void worker(uint strip[], uint updated_strip[], uint strip_height, uint width) {
+    //Given a strip with lines either side returns the new values of the new values of the strip
+    for (uint i = 0  ; i < strip_height*width ; i++ ){
+		updated_strip[i] = calc_cell(i+width, strip, width);
+	}
+ }
+
+ void farmer(uint grid[], uint strips[]; uint width, uint height, uint workers_available) {
+     if workers_available == 1:
+         return [grid[(height - 1) * width:] + grid + grid[:width]]
+
+     strips = []
+     strip_size = math.ceil(height / workers_available)
+     workers_required = math.ceil(height / strip_size)
+
+     for i in range(0, height, strip_size):
+         last = (i >= (height - strip_size))
+
+         # Alter the strip size if workers dosent perfectly devide height
+         if last and height % strip_size != 0:
+             strip_size = height % strip_size
+
+         grid_start_index = i * width
+         grid_stop_index = (((i + strip_size + 2) % height) * width - 1) % (width * height) + 1
+
+         if grid_start_index >= grid_stop_index:
+             strip = grid[grid_start_index:] + grid[:grid_stop_index]
+         else:
+             strip = grid[grid_start_index: grid_stop_index]
+         strips.append(strip)
+
+}
+
 /*
 void set_bit(uint array[], uint index, uint val) {
 	if (val) {
@@ -51,16 +87,6 @@ void set_bit(uint array[], uint index, uint val) {
 }
 */
 
-/*
 
- void worker(int strip[], static const uint strip_size, static const uint width) {
-    //Given a strip with lines either side returns the new values of the new values of the strip
-    uint updated_strip [strip_size*width];
-    for (i=0 ; i<strip_size ; i++ ){
-        line_group = strip[i * width:(i + 3) * width];
-        updated_strip += calc_line(line_group);
-
-	}
- }
 
  */

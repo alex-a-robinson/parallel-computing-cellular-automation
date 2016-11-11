@@ -24,5 +24,8 @@ bin/gol.xe: src/*.c src/*.xc src/*.h
 		-Ilibs/lib_logging/api libs/lib_i2c/src/* \
 		libs/lib_xassert/src/* libs/lib_logging/src/* src/*
 
-gol: bin/gol.xe
+sim: bin/gol.xe
 	xsim bin/gol.xe
+
+run: bin/gol.xe
+	xrun --io bin/gol.xe

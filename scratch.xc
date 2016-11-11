@@ -2,6 +2,6 @@
 #include "i2c.h"
 
 int main(void) {
-    printf("test\n");
+    printf("Test\n");
     return 0;
 }

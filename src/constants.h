@@ -1,6 +1,9 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
+// Type Constants
+const static int INT_SIZE = sizeof(unsigned int)*8;
+
 // Image Constants
 #define IMHT 16 // Image height
 #define IMWD 16 // Image width

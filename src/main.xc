@@ -56,5 +56,7 @@ par {
   }
   */
 
+  printf("MAIN\n");
+
   return 0;
 }

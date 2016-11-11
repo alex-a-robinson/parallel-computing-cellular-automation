@@ -1,9 +1,6 @@
 #include <stdio.h>
-
-const static int INT_SIZE = sizeof(unsigned int)*8;
-
-#include <utils.c>
-
+#include "constants.h"
+//#include "utils.c"
 
 // Returns an int of the bit value
 uint get_bit(uint array[], uint index) {

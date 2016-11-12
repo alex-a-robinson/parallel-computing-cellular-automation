@@ -1,6 +1,7 @@
 // Image Processing
 #include "pgmIO.h"
 #include "constants.h"
+#include <stdlib.h>
 
 
 // Write pixel stream from channel c_in to PGM image file
@@ -28,6 +29,7 @@ void DataOutStream(char outfname[], chanend c_in) {
   // Close the PGM image
   _closeoutpgm();
   printf("DataOutStream: Done...\n");
+  exit(0);
 }
 
 // Read Image from PGM file from path infname[] to channel c_out

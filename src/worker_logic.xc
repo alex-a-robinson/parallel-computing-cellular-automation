@@ -45,7 +45,7 @@ uint calc_cell(uint index, uint strip[], uint width, uint height) {
     //Given a strip with lines either side returns the new values of the new values of the strip
     for (uint i = 0; i < number_of_cells; i++ ){
 		printf("%i-%i ",i, calc_cell((i+start_index) % (width*height), grid, width, height));
-		 updated_strip[i] = calc_cell((i+start_index) % (width*height), grid, width, height);
+		 //TODO updated_strip[i] = calc_cell((i+start_index) % (width*height), grid, width, height);
 	 }
 
  }
@@ -59,9 +59,9 @@ uint calc_cell(uint index, uint strip[], uint width, uint height) {
      uint workers_required = height / strip_size + ((height % strip_size)?1:0);
 	 //uint cells_in_strip = width*strip_size;
 
-	 uint updated_strips[4][32*4]; // TODO: change to  [workers_required][cells_in_strip]
+	 //uint updated_strips[4][32*4]; // TODO: change to  [workers_required][cells_in_strip]
 	 for (uint i=0 ; i < workers_required ; i++){ //TODO make par
-		 worker(grid, updated_strips[i], i * strip_size * width, strip_size * width, width, height);
+		 // worker(grid, updated_strips[i], i * strip_size * width, strip_size * width, width, height);
 	 }//TODO: start channels as arays aren't working
 
 

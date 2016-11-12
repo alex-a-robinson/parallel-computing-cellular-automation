@@ -1,16 +1,15 @@
 TARGET = XCORE-200-EXPLORER
 
-game_of_life/tests/bin/test_worker_logic.xe:
-	xcc -target="$(TARGET)" game_of_life/tests/test_worker_logic.xc \
-		-o game_of_life/tests/bin/test_worker_logic.xe
+bin/test_worker_logic.xe: src/worker_logic.xc
+	xcc -target="$(TARGET)" tests/test_worker_logic.xc \
+		-o bin/test_worker_logic.xe
 
-test: game_of_life/tests/bin/test_worker_logic.xe
-	clear;
-	@echo "=================";
-	@echo "===== TESTS =====";
-	@echo "=================";
+test: bin/test_worker_logic.xe
+	@echo "===================================================";
+	@echo "====================== TESTS ======================";
+	@echo "===================================================";
 
-	xsim game_of_life/tests/bin/test_worker_logic.xe
+	xsim bin/test_worker_logic.xe
 
 scratch.xc:
 	xcc -g -target="$(TARGET)" scratch.xc -o bin/scratch.xe
@@ -20,12 +19,16 @@ scratch: scratch.xc
 
 bin/gol.xe: src/*.c src/*.xc src/*.h
 	xcc -o bin/gol.xe -target="XCORE-200-EXPLORER" \
-		-Ilibs/lib_i2c/api -Ilibs/lib_xassert/api \
-		-Ilibs/lib_logging/api libs/lib_i2c/src/* \
-		libs/lib_xassert/src/* libs/lib_logging/src/* src/*
+		-Ilibs/i2c/api -Ilibs/xassert/api \
+		-Ilibs/gpio/api -Ilibs/gpio/api \
+		-Ilibs/logging/api libs/i2c/src/* \
+		libs/xassert/src/* libs/gpio/src/* libs/logging/src/* src/*
 
 sim: bin/gol.xe
 	xsim bin/gol.xe
 
 run: bin/gol.xe
 	xrun --io bin/gol.xe
+
+run_with_image: run
+	images/pgm_tool.py images/testout.pgm

@@ -20,4 +20,6 @@ const static int INT_SIZE = sizeof(unsigned int)*8;
 #define FXOS8700EQ_OUT_Z_MSB 0x5
 #define FXOS8700EQ_OUT_Z_LSB 0x6
 
+#define TILTED_ANGLE 40
+
 #endif /* CONSTANTS_H_ */

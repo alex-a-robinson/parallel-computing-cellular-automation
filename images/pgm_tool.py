@@ -79,7 +79,7 @@ parser.add_argument('-m', '--mean', type=float,
                     help='Specify the mean to use for generation')
 parser.add_argument('-o', '--output', type=str,
                     help='Output file name')
-  
+
 args = parser.parse_args()
 
 if args.file is not None:
@@ -112,5 +112,5 @@ if args.generate:
 
   image = generate_pgm(args.generate, mean, output_filename)
 
-if args.stats: print_stats(image) 
+if args.stats: print_stats(image)
 if args.display: show_image(image)

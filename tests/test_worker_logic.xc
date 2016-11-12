@@ -1,12 +1,6 @@
-#include <grids.c>
-#include <../src/worker_logic.xc>
-
-#define ASSERT(str, expr)  \
-    if (!expr) \
-        printf("  %s failed at line %i\n", str, __LINE__)
-
-
-
+#include "tests.h"
+#include "../src/worker_logic.xc"
+#include "utils.c"
 
 void test_get_bit(){
     printf("\ntest_get_bit:\n");
@@ -37,6 +31,8 @@ void test_calc_cell() {
     //TODO diagonal test
     //uint strip_32_8_diagonal_inv[4] = {1,2,4,8,16,32,64,128};
 
+    ASSERT("a", 0);
+
     ASSERT("calc_cell(33, strip_32_4_zeros, 32) == 0)", calc_cell(33, strip_32_4_zeros, 32, 4) == 0);
     ASSERT("calc_cell(33, strip_32_4_ones, 32) == 0)", calc_cell(33, strip_32_4_ones, 32, 4) == 0);
     ASSERT("calc_cell(63, strip_32_4_ones, 32) == 0)", calc_cell(63, strip_32_4_ones, 32, 4) == 0);
@@ -45,6 +41,7 @@ void test_calc_cell() {
     ASSERT("calc_cell(32, strip_32_4_columns_inv, 32) == 0", calc_cell(32, strip_32_4_columns_inv, 32, 4) == 0);
     ASSERT("alc_cell(33, strip_32_4_columns_inv, 32) == 1", calc_cell(33, strip_32_4_columns_inv, 32, 4) == 1);
 
+    printf("done.\n\n");
 }
 
 void test_worker() {

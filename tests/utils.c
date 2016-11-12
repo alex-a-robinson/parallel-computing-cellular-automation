@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "constants.h"
+#include "../src/constants.h"
 
 int compare_arrays(unsigned int a[], unsigned int b[], unsigned int n) {
     for (int i = 0; i < n; i++) {

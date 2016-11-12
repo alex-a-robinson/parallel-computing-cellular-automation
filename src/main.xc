@@ -12,6 +12,7 @@
 #include "image_processing/image_processing.h"
 #include "controls/controls.h"
 #include "constants.h"
+#include "utils/debug.h"
 
 
 // Interface ports to orientation
@@ -30,21 +31,21 @@ void distributor(chanend c_in, chanend c_out, chanend fromAcc) {
   unsigned char val;
 
   // Starting up and wait for tilting of the xCore-200 Explorer
-  printf("ProcessImage: Start, size = %dx%d\n", IMHT, IMWD);
-  printf("Waiting for Board Tilt...\n");
+  LOG(IFO, "ProcessImage: Start, size = %dx%d", IMHT, IMWD);
+  LOG(IFO, "Waiting for Board Tilt...");
   fromAcc :> int value;
 
   // Read in and do something with your image values..
   // This just inverts every pixel, but you should
   // change the image according to the "Game of Life"
-  printf("Processing...\n");
+  LOG(IFO, "Processing...");
   for(int y=0; y < IMHT; y++) {   // go through all lines
     for(int x=0; x < IMWD; x++) { // go through each pixel per line
       c_in :> val;                  // read the pixel value
       c_out <: (unsigned char)(val ^ 0xFF); // send some modified pixel out
     }
   }
-  printf("\nOne processing round completed...\n");
+  LOG(IFO, "One processing round completed...");
 }
 
 // Orchestrate concurrent system and start up all threads

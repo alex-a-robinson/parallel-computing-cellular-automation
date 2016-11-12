@@ -5,4 +5,4 @@
     if (!expr) \
         printf("  %s failed at line %i\n", str, __LINE__)
 
-#endif 
+#endif

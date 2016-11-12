@@ -1,8 +1,8 @@
 // Image Processing
-#include "pgmIO.h"
-#include "constants.h"
 #include <stdlib.h>
 
+#include "pgmIO.h"
+#include "constants.h"
 
 // Write pixel stream from channel c_in to PGM image file
 void DataOutStream(char outfname[], chanend c_in) {

@@ -4,12 +4,15 @@
 #include <xs1.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+
 #include "gpio.h"
 #include "i2c.h"
-#include "image_processing.h"
-#include "controls.h"
+
+#include "image_processing/image_processing.h"
+#include "controls/controls.h"
 #include "constants.h"
-#include <stdlib.h>
+
 
 // Interface ports to orientation
 on tile[0] : port p_scl = XS1_PORT_1E;

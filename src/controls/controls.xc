@@ -1,8 +1,10 @@
 // Controls for game
 #include <stdio.h>
+
 #include "i2c.h"
-#include "constants.h"
 #include "gpio.h"
+
+#include "constants.h"
 
 // Initialise and  read orientation, send first tilt event to channel
 void orientation_control(client interface i2c_master_if i2c,

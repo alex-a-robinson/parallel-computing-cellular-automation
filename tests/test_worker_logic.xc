@@ -1,5 +1,5 @@
 #include "tests.h"
-#include "../src/worker_logic.xc"
+#include "logic/worker_logic.xc"
 #include "utils.c"
 
 void test_get_bit(){
@@ -30,8 +30,6 @@ void test_calc_cell() {
     //uint strip_32_4_diagonal_inv[4] = {1,2,4,8};
     //TODO diagonal test
     //uint strip_32_8_diagonal_inv[4] = {1,2,4,8,16,32,64,128};
-
-    ASSERT("a", 0);
 
     ASSERT("calc_cell(33, strip_32_4_zeros, 32) == 0)", calc_cell(33, strip_32_4_zeros, 32, 4) == 0);
     ASSERT("calc_cell(33, strip_32_4_ones, 32) == 0)", calc_cell(33, strip_32_4_ones, 32, 4) == 0);

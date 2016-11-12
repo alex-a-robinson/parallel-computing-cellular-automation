@@ -1,8 +1,8 @@
 TARGET = XCORE-200-EXPLORER
 
-bin/test_worker_logic.xe: src/worker_logic.xc
-	xcc -target="$(TARGET)" tests/test_worker_logic.xc \
-		-o bin/test_worker_logic.xe
+bin/test_worker_logic.xe: src/logic/worker_logic.xc
+	xcc -o bin/test_worker_logic.xe -target="$(TARGET)" -Isrc/ \
+		tests/test_worker_logic.xc
 
 test: bin/test_worker_logic.xe
 	@echo "===================================================";
@@ -12,17 +12,18 @@ test: bin/test_worker_logic.xe
 	xsim bin/test_worker_logic.xe
 
 scratch.xc:
-	xcc -g -target="$(TARGET)" scratch.xc -o bin/scratch.xe
+	xcc -o bin/scratch.xe -g -target="$(TARGET)" scratch.xc
 
 scratch: scratch.xc
 	xsim bin/scratch.xe
 
-bin/gol.xe: src/*.c src/*.xc src/*.h
-	xcc -o bin/gol.xe -target="XCORE-200-EXPLORER" \
+bin/gol.xe: src/*
+	 xcc -o bin/gol.xe -target="$(TARGET)" \
 		-Ilibs/i2c/api -Ilibs/xassert/api \
 		-Ilibs/gpio/api -Ilibs/gpio/api \
-		-Ilibs/logging/api libs/i2c/src/* \
-		libs/xassert/src/* libs/gpio/src/* libs/logging/src/* src/*
+		-Ilibs/logging/api -Isrc/ libs/i2c/src/* \
+		libs/xassert/src/* libs/gpio/src/* libs/logging/src/* \
+		src/*.xc src/*.h src/logic/* src/image_processing/* src/controls/*
 
 sim: bin/gol.xe
 	xsim bin/gol.xe

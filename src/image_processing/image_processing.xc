@@ -5,7 +5,7 @@
 #include "constants.h"
 
 // Write pixel stream from channel c_in to PGM image file
-void DataOutStream(char outfname[], chanend c_in) {
+void write_image(char outfname[], chanend c_in) {
   int res;
   unsigned char line[IMWD];
 
@@ -33,7 +33,7 @@ void DataOutStream(char outfname[], chanend c_in) {
 }
 
 // Read Image from PGM file from path infname[] to channel c_out
-void DataInStream(char infname[], chanend c_out) {
+void read_image(char infname[], chanend c_out) {
   int res;
   unsigned char line[IMWD];
   printf("DataInStream: Start...\n");

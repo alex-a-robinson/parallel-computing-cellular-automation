@@ -57,16 +57,26 @@ int main(void) {
     output_gpio_if i_explorer_leds[4];
 
     par {
-        on tile[0] : i2c_master(i2c, 1, p_scl, p_sda, 10);   //server thread providing orientation data
-        on tile[0] : orientation_control(i2c[0], c_control);          //client thread reading orientation data
-        on tile[0] : DataInStream("images/test.pgm", c_inIO);          //thread to read in a PGM image
-        on tile[0] : DataOutStream("images/testout.pgm", c_outIO);       //thread to write out a PGM image
-        on tile[0] : distributor(c_inIO, c_outIO, c_control);//thread to coordinate work on image
-        on tile[0] : input_gpio_with_events(i_explorer_buttons, 2, explorer_buttons, null);
-        on tile[0] : output_gpio(i_explorer_leds, 4, explorer_leds, null);
+        // input/output cores
+        on tile[0] : i2c_master(i2c, 1, p_scl, p_sda, 10); // provides orientation data
+        on tile[0] : input_gpio_with_events(i_explorer_buttons, 2, explorer_buttons, null); // provides button data
+        on tile[0] : output_gpio(i_explorer_leds, 4, explorer_leds, null); // provides led output
+
+        // Control cores
+        on tile[0] : orientation_control(i2c[0], c_control);
         on tile[0] : button_control(i_explorer_buttons[0], i_explorer_buttons[1],
                              i_explorer_leds[0], i_explorer_leds[1],
                              i_explorer_leds[2], i_explorer_leds[3]);
+
+        // Image cores
+        on tile[0] : read_image("images/test.pgm", c_inIO);
+        on tile[0] : write_image("images/testout.pgm", c_outIO);
+
+        // Farmer
+        on tile[0] : distributor(c_inIO, c_outIO, c_control);//thread to coordinate work on image
+
+        // Workers
+        // TODO
     }
 
     return 0;

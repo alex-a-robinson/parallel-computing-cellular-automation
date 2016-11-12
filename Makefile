@@ -1,15 +1,15 @@
 TARGET = XCORE-200-EXPLORER
 
-bin/test_worker_logic.xe: src/logic/worker_logic.xc
-	xcc -o bin/test_worker_logic.xe -target="$(TARGET)" -Isrc/ \
-		tests/test_worker_logic.xc
+bin/test.xe: src/* tests/*
+	xcc -o bin/test.xe -target="$(TARGET)" -Isrc/ -Itests/\
+		tests/*.xc tests/*.h
 
-test: bin/test_worker_logic.xe
+test: bin/test.xe
 	@echo "===================================================";
 	@echo "====================== TESTS ======================";
 	@echo "===================================================";
 
-	xsim bin/test_worker_logic.xe
+	xsim bin/test.xe
 
 scratch.xc:
 	xcc -o bin/scratch.xe -g -target="$(TARGET)" scratch.xc
@@ -23,7 +23,7 @@ bin/gol.xe: src/*
 		-Ilibs/gpio/api -Ilibs/gpio/api \
 		-Ilibs/logging/api -Isrc/ libs/i2c/src/* \
 		libs/xassert/src/* libs/gpio/src/* libs/logging/src/* \
-		src/*.xc src/*.h src/logic/* src/image_processing/* src/controls/*
+		src/*.xc src/*.h src/logic/* src/image_processing/* src/controls/* src/utils/*
 
 sim: bin/gol.xe
 	xsim bin/gol.xe

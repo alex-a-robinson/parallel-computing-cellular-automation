@@ -1,14 +1,7 @@
 #include <stdio.h>
 #include "constants.h"
-//#include "utils.c"
+#include "utils/utils.h"
 
-// Returns an int of the bit value
-uint get_bit(uint array[], uint index) {
-	int array_index = index / INT_SIZE;
-	int rel_index = index % INT_SIZE;
-	int shift_amount = INT_SIZE - rel_index-1;
-	return (array[array_index] & (1 << shift_amount)) >> shift_amount;
-}
 
 // Finds neighbours, sums and returns new value
 uint calc_cell(uint index, uint strip[], uint width, uint height) {

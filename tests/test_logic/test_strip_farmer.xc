@@ -1,26 +1,11 @@
+#include <stdio.h>
+#include "utils.h"
 #include "tests.h"
-#include "logic/worker_logic.xc"
-#include "utils.c"
-
-void test_get_bit(){
-    printf("\ntest_get_bit:\n");
-    uint array_0[1] = {0};
-    ASSERT("get_bit(array_0,0) == 0)", get_bit(array_0,0) == 0);
-
-    uint array_1[1] = {1};
-    ASSERT("get_bit(array_1,0) == 0", get_bit(array_1,0) == 0);
-    ASSERT("get_bit(array_1,31) == 1", get_bit(array_1,31) == 1);
-
-    uint array_donut[3] = {7,5,7};
-    ASSERT("get_bit(array_donut,60) == 0", get_bit(array_donut,62) == 0);
-    ASSERT("get_bit(array_donut,62) == 0", get_bit(array_donut,62) == 0);
-    ASSERT("get_bit(array_donut,61) == 1", get_bit(array_donut,61) == 1);
-    ASSERT("get_bit(array_donut,63) == 1", get_bit(array_donut,63) == 1);
-
-    printf("done.\n\n");
-}
+#include "logic/strip_farmer.xc"
 
 void test_calc_cell() {
+    printf("-- calc_cell --\n");
+
     uint strip_32_4_zeros[4] = {0, 0, 0, 0};
     uint strip_32_4_ones[4]  = {0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff};
     uint strip_32_4_columns[4] = {0xaaaaaaaa, 0xaaaaaaaa, 0xaaaaaaaa, 0xaaaaaaaa};
@@ -39,10 +24,12 @@ void test_calc_cell() {
     ASSERT("calc_cell(32, strip_32_4_columns_inv, 32) == 0", calc_cell(32, strip_32_4_columns_inv, 32, 4) == 0);
     ASSERT("alc_cell(33, strip_32_4_columns_inv, 32) == 1", calc_cell(33, strip_32_4_columns_inv, 32, 4) == 1);
 
-    printf("done.\n\n");
+    printf("\n");
 }
 
 void test_worker() {
+    printf("-- worker --\n");
+
 //worker(uint grid[], uint updated_strip[], uint start_index, uint number_of_cells, uint height, uint width) {
     uint grid_32_8_zeros[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     //uint grid_32_8_ones[8]  = {0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff};
@@ -53,11 +40,13 @@ void test_worker() {
     //TODO add channels
     worker(grid_32_8_zeros, updated_strip, 0, 32*4, 32, 8);
     ASSERT("worker(grid_32_8_zeros)",compare_arrays(updated_strip, strip_32_4_zeros, 4));
+
+    printf("\n");
 }
 
-int main(void) {
-    test_get_bit();
+void test_strip_farmer() {
+    printf("== Testing logic/strip_farmer.xc ==\n");
     test_calc_cell();
     test_worker();
-    return 0;
+    printf("========\n\n");
 }

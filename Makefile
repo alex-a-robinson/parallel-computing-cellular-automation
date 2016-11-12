@@ -11,10 +11,10 @@ test: bin/test.xe
 
 	xsim bin/test.xe
 
-scratch.xc:
+bin/scratch.xe: scratch.xc
 	xcc -o bin/scratch.xe -g -target="$(TARGET)" scratch.xc
 
-scratch: scratch.xc
+scratch: bin/scratch.xe
 	xsim bin/scratch.xe
 
 bin/gol.xe: src/*

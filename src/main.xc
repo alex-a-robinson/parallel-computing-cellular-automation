@@ -23,6 +23,29 @@ on tile[0] : port p_sda = XS1_PORT_1F;
 on tile[0] : in port explorer_buttons = XS1_PORT_4E;
 on tile[0] : out port explorer_leds = XS1_PORT_4F;
 
+// Define farmer interfaces
+// TODO
+interface farmer_orientation_control {
+    void pause(int x);
+};
+
+interface farmer_button_control {
+    void start_read(int x);
+    void start_write(int x);
+};
+
+interface farmer_read_image {
+    void start_read(int x);
+    [[clears_notification]] int get_data();
+    [[notification]] slave void data_ready(void);
+};
+
+interface farmer_write_image {
+    void start_write(int x);
+    [[clears_notification]] int get_data();
+    [[notification]] slave void data_ready(void);
+};
+
 /* Start your implementation by changing this function to implement the game of life
  * by farming out parts of the image to worker threads who implement it...
  * Currently the function just inverts the image

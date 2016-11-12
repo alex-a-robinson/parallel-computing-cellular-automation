@@ -9,6 +9,8 @@ https://docs.google.com/document/d/1_RFqflIu9wtYERPC07vNm1GZtXkS0ZIZHcadgs6FLnY/
 
 
 ## Communication
+[See page 29](https://www.xmos.com/download/private/XMOS-Programming-Guide-%28documentation%29%28F%29.pdf)
+
 Farmer (also controls LEDs):
 
 * orientation_control (foc)

@@ -53,8 +53,8 @@ uint calc_cell(uint index, uint strip[], uint width, uint height) {
 	 //uint cells_in_strip = width*strip_size;
 
 	 //uint updated_strips[4][32*4]; // TODO: change to  [workers_required][cells_in_strip]
-	 for (uint i=0 ; i < workers_required ; i++){ //TODO make par
-		 // worker(grid, updated_strips[i], i * strip_size * width, strip_size * width, width, height);
+	 par (uint i=0 ; i < workers_required ; i++){ //TODO make par
+		  //TODO worker(grid, updated_strips[i], i * strip_size * width, strip_size * width, width, height);
 	 }//TODO: start channels as arays aren't working
 
 

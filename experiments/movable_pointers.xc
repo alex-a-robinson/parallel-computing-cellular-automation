@@ -40,10 +40,13 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
 
     #define MAX_INTS_IN_STRIP  10 // TODO Optimise for memory
 
-    uint worker_strips[workers][MAX_INTS_IN_STRIP];
-    //for (int worker_id=0; worker_id<workers; worker_id++) {
-    //    worker_strips[worker_id] = move(row);
-    //}
+    uint * movable worker_strips[workers];
+    //TODO: needs to malloc somehow and have array of movable pointers.
+        //if malloced seperately, will the memory be in loads of ifferent physical locations?
+
+    for (int worker_id=0; worker_id<workers; worker_id++) {
+        worker_strips[worker_id] = malloc(MAX_INTS_IN_STRIP * INT_SIZE);
+    }
 
     //NOTE arrays used for testing, will be image input later
     for (int worker_id=0; worker_id<workers; worker_id++) {

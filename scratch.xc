@@ -22,13 +22,12 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
     // TODO read in from image
     const int width = 64;
     const int height = 8;
-
     if (height % workers) {
         printf("Error: incompatible height to workers ratio\n\n");
         return;
     }
+    
     int working_strip_height = height / workers; // TODO put in variable length strips?
-    //int number_of_cells = working_strip_height * width;
     int ints_in_row = ceil_div(width, INT_SIZE);
     int ints_in_strip = (working_strip_height+2)*ints_in_row;
     //TODO add availabile_workers when different
@@ -42,18 +41,18 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
 
     uint * movable worker_strips[workers];
     //TODO: needs to malloc somehow and have array of movable pointers.
-        //if malloced seperately, will the memory be in loads of ifferent physical locations?
+        //if memory allocated seperately, will the memory be in loads of ifferent physical locations?
+        // will that havae any actual difference on speed?
 
-    for (int worker_id=0; worker_id<workers; worker_id++) {
-        worker_strips[worker_id] = malloc(MAX_INTS_IN_STRIP * INT_SIZE);
-    }
-
-    //NOTE arrays used for testing, will be image input later
     for (int worker_id=0; worker_id<workers; worker_id++) {
         for (int j=0; j<ints_in_strip; j++) {
-            worker_strips[worker_id][j] = 0;
+            //TODO: replace these with incoming image channel
+            uint current_strip = 0;
             if (worker_id == 1) worker_strips[worker_id][j] = 0x55555555;
             if (worker_id == 3) worker_strips[worker_id][j] = 0xaaaaaaaa;
+            
+            worker_strips[worker_id] = &(current_strip); //maybe needs a move?
+            
         }
         //print_bits_array(worker_strips[worker_id], MAX_INTS_IN_STRIP);
     }

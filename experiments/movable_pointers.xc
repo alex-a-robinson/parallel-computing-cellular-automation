@@ -2,9 +2,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#define INT_SIZE 32
+
 //#include "constants.h"
-#include "utils.xc"
-#include "utils/utils.h"
+//#include "utils.xc"
+//#include "utils/utils.h"
 
 int ceil_div(int a, int b) {
     return (a/b) + ((a%b)?1:0);
@@ -22,13 +24,12 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
     // TODO read in from image
     const int width = 64;
     const int height = 8;
-
     if (height % workers) {
         printf("Error: incompatible height to workers ratio\n\n");
         return;
     }
+
     int working_strip_height = height / workers; // TODO put in variable length strips?
-    //int number_of_cells = working_strip_height * width;
     int ints_in_row = ceil_div(width, INT_SIZE);
     int ints_in_strip = (working_strip_height+2)*ints_in_row;
     //TODO add availabile_workers when different
@@ -41,19 +42,21 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
     #define MAX_INTS_IN_STRIP  10 // TODO Optimise for memory
 
     uint * movable worker_strips[workers];
-    //TODO: needs to malloc somehow and have array of movable pointers.
-        //if malloced seperately, will the memory be in loads of ifferent physical locations?
 
-    for (int worker_id=0; worker_id<workers; worker_id++) {
-        worker_strips[worker_id] = malloc(MAX_INTS_IN_STRIP * INT_SIZE);
-    }
+//TODO: needs to malloc somehow and have array of movable pointers.
+        //if memory allocated seperately, will the memory be in loads of ifferent physical locations?
+        // will that havae any actual difference on speed?
 
-    //NOTE arrays used for testing, will be image input later
+    //uint * movable temp_ref; //keep scope?
     for (int worker_id=0; worker_id<workers; worker_id++) {
+        static uint current_strip[MAX_INTS_IN_STRIP]; //TODO: check for memory leak here
         for (int j=0; j<ints_in_strip; j++) {
-            worker_strips[worker_id][j] = 0;
-            if (worker_id == 1) worker_strips[worker_id][j] = 0x55555555;
-            if (worker_id == 3) worker_strips[worker_id][j] = 0xaaaaaaaa;
+            //TODO: replace these with incoming image channel
+            current_strip[j] = 0;
+            if (worker_id == 1) current_strip[j] = 0x55555555;
+            if (worker_id == 3) current_strip[j] = 0xaaaaaaaa;
+        static uint * movable temp_ref = &(current_strip[0]); //TODO: dsicuss this 0
+        worker_strips[worker_id] = move(temp_ref);
         }
         //print_bits_array(worker_strips[worker_id], MAX_INTS_IN_STRIP);
     }
@@ -84,7 +87,7 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
                     uint *movable ref = wf_i[worker_id].get_ref();
 
                     printf("pointer: %i\n", ref);
-                    print_bits_array(ref, MAX_INTS_IN_STRIP);
+                    //print_bits_array(ref, MAX_INTS_IN_STRIP);
                     return;
 
                     workers_done--;

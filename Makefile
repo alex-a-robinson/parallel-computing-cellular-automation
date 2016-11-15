@@ -12,7 +12,7 @@ test: bin/test.xe
 	xsim bin/test.xe
 
 bin/scratch.xe: scratch.xc
-	xcc -o bin/scratch.xe -g -target="$(TARGET)" scratch.xc
+	xcc -o bin/scratch.xe -g -Isrc/ -Itests/ -target="$(TARGET)" scratch.xc
 
 scratch: bin/scratch.xe
 	xsim bin/scratch.xe

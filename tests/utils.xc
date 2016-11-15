@@ -11,17 +11,26 @@ int compare_arrays(unsigned int a[], unsigned int b[], unsigned int n) {
     return 1;
 }
 
-void print_array(unsigned int array[], unsigned int n) {
+void print_bits(unsigned int num) {
+    for (int i=0 ; i<INT_SIZE; i++){
+        printf("%i", (num & (1<<(INT_SIZE-i-1))) ? 1 : 0);
+    }
+}
+
+void print_bits_array(unsigned int array[], unsigned int n) {
+    printf("-\n");
     for (int i = 0; i < n; i++) {
         //TODO add 2d fucnitonality
-        printf("%i", array[i]);
+        print_bits(array[i]);
+        printf("\n");
     }
     printf("\n");
 }
 
-void print_bits(unsigned int num) {
-    for (int i=0 ; i<INT_SIZE; i++){
-        printf("%i", (num & (1<<(INT_SIZE-i-1))) ? 1 : 0);
+void print_array(unsigned int array[], unsigned int n) {
+    for (int i = 0; i < n; i++) {
+        //TODO add 2d fucnitonality
+        printf("%i", array[i]);
     }
     printf("\n");
 }

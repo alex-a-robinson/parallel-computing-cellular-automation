@@ -16,7 +16,7 @@ Farmer (also controls LEDs):
 * orientation_control (foc)
   * < pause/play
 * read_image (rif)
-  * > start_read
+  * > start_read [[notification]]
   * < data, read_done
 * write_image (wif)
   * > data, start_write
@@ -39,10 +39,10 @@ switch {
     case foc.pause(int x):
         pause = x;
         break;
-    case fbc.start_read(int x):
+    case fbc.start_read():
         fir.start_read(); // this is a [[notification]]
         break;
-    case fbc.start_write(int x):
+    case fbc.start_write():
         // TODO light LED
         while data {
             wif.write(data);

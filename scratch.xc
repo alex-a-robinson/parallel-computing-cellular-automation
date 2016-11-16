@@ -92,14 +92,14 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
     // worker_strips[1][1] = 0x00E00000;
 
     //makes diagonal
-    worker_strips[0][1] = 0x80000000;
-    worker_strips[0][2] = 0x40000000;
-    worker_strips[1][1] = 0x20000000;
-    worker_strips[1][2] = 0x10000000;
-    worker_strips[2][1] = 0x08000000;
-    worker_strips[2][2] = 0x04000000;
-    worker_strips[3][1] = 0x02000000;
-    worker_strips[3][2] = 0x01000000;
+    worker_strips[0][1] = 0x00008000;
+    worker_strips[0][2] = 0x00004000;
+    worker_strips[1][1] = 0x00002000;
+    worker_strips[1][2] = 0x00001000;
+    worker_strips[2][1] = 0x00000800;
+    worker_strips[2][2] = 0x00000400;
+    worker_strips[3][1] = 0x00000200;
+    worker_strips[3][2] = 0x00000100;
 
     int pause = 0; // TODO update with button press
     while (!pause) {

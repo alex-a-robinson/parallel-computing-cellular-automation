@@ -11,7 +11,7 @@ int compare_arrays(unsigned int a[], unsigned int b[], unsigned int n) {
     return 1;
 }
 
-void print_bits(unsigned int num) {
+void print_int_as_bits(unsigned int num) {
     for (int i=0 ; i<INT_SIZE; i++){
         printf("%i", (num & (1<<(INT_SIZE-i-1))) ? 1 : 0);
     }
@@ -20,7 +20,7 @@ void print_bits(unsigned int num) {
 void print_bits_array(unsigned int array[], unsigned int n) {
     for (int i = 0; i < n; i++) {
         //TODO add 2d fucnitonality
-        print_bits(array[i]);
+        print_int_as_bits(array[i]);
         printf("\n");
     }
 }
@@ -41,5 +41,13 @@ unsigned int array_to_bits(unsigned int array[], unsigned int n){
 	return bits;
 }
 
-//unsigned int alternate_columns_array[32] = {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1};
-//printf("%i", array_to_bits(alternate_columns_array));
+void print_strips_as_grid(unsigned int worker_strips[][], unsigned int working_strip_height, unsigned int workers, unsigned int ints_in_row) {
+    for (worker_index=0; worker_index < workers; worker_index++) {
+        for (row_index=1; row_index <= working_strip_height; row_index++) {
+            for (int_index=0; int_index < ints_in_row; int_index++){
+                print_int_as_bits(worker_strips[worker_index][row_index*ints_in_row + int_index]);
+            }
+            printf("\n");
+        }
+    }
+}

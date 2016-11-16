@@ -122,6 +122,8 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
                     break;
             }
         }
+        printf("all workers done.\n");
+        print_strips_as_grid(worker_strips, working_strip_height, workers, ints_in_row);
     }
 }
 

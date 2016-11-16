@@ -13,7 +13,7 @@ int compare_arrays(unsigned int a[], unsigned int b[], unsigned int n) {
 
 void print_int_as_bits(unsigned int num) {
     for (int i=0 ; i<INT_SIZE; i++){
-        printf("%i", (num & (1<<(INT_SIZE-i-1))) ? 1 : 0);
+        printf("%c", (num & (1<<(INT_SIZE-i-1))) ? 'o' : ' ');
     }
 }
 

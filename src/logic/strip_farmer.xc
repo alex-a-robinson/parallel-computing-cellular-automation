@@ -4,14 +4,14 @@
 
 
 // Finds neighbours, sums and returns new value
-uint calc_cell(uint index, uint strip[], uint width, uint height) {
+uint calc_cell(uint index, uint strip[], uint width) {
 	uint sum = 0;
 
 	// TODO: Opptimise with static indexs
 	for (int r=-1; r < 2; r++) {
 		uint row_scaler = (index / width + r) * width;
 		for (int c=-1; c < 2; c++) {
-			uint neighbour_index = ((index + c) % width + row_scaler) % (width*height);
+			uint neighbour_index = ((index + c) % width + row_scaler);
 			if (!(r == 0 && c == 0)) {
 				sum += get_bit(strip, neighbour_index);
 			}

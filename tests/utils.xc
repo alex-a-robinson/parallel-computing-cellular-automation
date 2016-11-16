@@ -18,13 +18,11 @@ void print_bits(unsigned int num) {
 }
 
 void print_bits_array(unsigned int array[], unsigned int n) {
-    printf("-\n");
     for (int i = 0; i < n; i++) {
         //TODO add 2d fucnitonality
         print_bits(array[i]);
         printf("\n");
     }
-    printf("\n");
 }
 
 void print_array(unsigned int array[], unsigned int n) {

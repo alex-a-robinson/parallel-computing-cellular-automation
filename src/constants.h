@@ -2,7 +2,8 @@
 #define CONSTANTS_H_
 
 // Type Constants
-const static int INT_SIZE = sizeof(unsigned int)*8;
+//const static int INT_SIZE = sizeof(unsigned int)*8; //TODO test
+#define INT_SIZE 32
 
 // Image Constants
 #define IMHT 16 // Image height

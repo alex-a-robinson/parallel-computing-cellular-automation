@@ -67,7 +67,7 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
     int working_strip_height = height / workers; // TODO put in variable length strips?
     //int number_of_cells = working_strip_height * width;
     int ints_in_row = ceil_div(width, INT_SIZE);
-    int ints_in_strip = (working_strip_height+2)*ints_in_row;
+    //int ints_in_strip = (working_strip_height+2)*ints_in_row;
     //TODO add availabile_workers when different
 
     int top_overlap_row = 0;
@@ -75,8 +75,7 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
     int last_working_row = ints_in_row * working_strip_height;
     int bottom_overlap_row = ints_in_row * (working_strip_height + 1);
 
-    #define MAX_INTS_IN_STRIP  3 // TODO Optimise for memory
-    uint worker_strips[workers][MAX_INTS_IN_STRIP]={0};
+    uint worker_strips[workers][MAX_INTS_IN_STRIP]={{0}};
 
     //NOTE arrays used for testing, will be image input later
 
@@ -94,10 +93,12 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
     //makes glider
     worker_strips[0][1] = 0x40000000;
     worker_strips[0][2] = 0x20000000;
-    worker_strips[1][1] = 0xd0000000;
+    worker_strips[1][1] = 0xE0000000;
 
     int pause = 0; // TODO update with button press
     while (!pause) {
+
+        //print_strips_as_grid(worker_strips, working_strip_height, workers, ints_in_row);
         // TODO: calculate strip stats
 
         for (int worker_id=0; worker_id < workers; worker_id++) {
@@ -108,7 +109,7 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
 
             memcpy(&(worker_strips[worker_id][bottom_overlap_row]), &(worker_strips[next_worker_id][first_working_row]), ints_in_row * sizeof(int));
 
-            printf("[%i] tick\n", worker_id);
+            printf("[%i] tick, \n", worker_id);
             wf_i[worker_id].tick(worker_strips[worker_id], first_working_row, last_working_row, width, ints_in_row);
 
             //print_bits_array(worker_strips[worker_id], MAX_INTS_IN_STRIP);
@@ -123,7 +124,6 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
             }
         }
         printf("all workers done.\n");
-        print_strips_as_grid(worker_strips, working_strip_height, workers, ints_in_row);
     }
 }
 
@@ -137,9 +137,11 @@ void worker(int id, server interface worker_farmer wf_i) {
             case wf_i.tick(unsigned int strip_ref[], uint first_working_row, uint last_working_row, uint width, uint ints_in_row):
                 // Copy into our local strip to work on
                 memcpy(old_strip, strip_ref, MAX_INTS_IN_STRIP * sizeof(int));
-                //print_bits_array(old_strip, MAX_INTS_IN_STRIP);
-                // Work through every cell
-
+                print_bits_array(old_strip, MAX_INTS_IN_STRIP);
+                //TODO after lunch
+                    //number 3 bottom not overlapping to get 1s top
+                    //number 1 isnt doing conway logic
+                    //check bit filling side
 
                 for (int row=first_working_row; row < last_working_row; row++) {
                     for (int int_index=0; int_index < ints_in_row; int_index++) {
@@ -158,7 +160,7 @@ void worker(int id, server interface worker_farmer wf_i) {
 
 
 
-                printf("[%i] tock\n", id);
+                printf("[%i] tock, ", id);
                 wf_i.tock();
                 break;
         }

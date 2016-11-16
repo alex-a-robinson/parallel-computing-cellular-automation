@@ -41,11 +41,12 @@ unsigned int array_to_bits(unsigned int array[], unsigned int n){
 	return bits;
 }
 
-void print_strips_as_grid(unsigned int worker_strips[][], unsigned int working_strip_height, unsigned int workers, unsigned int ints_in_row) {
-    for (worker_index=0; worker_index < workers; worker_index++) {
-        for (row_index=1; row_index <= working_strip_height; row_index++) {
-            for (int_index=0; int_index < ints_in_row; int_index++){
+void print_strips_as_grid(unsigned int worker_strips[workers][MAX_INTS_IN_STRIP], unsigned int working_strip_height, unsigned int workers, unsigned int ints_in_row) {
+    for (int worker_index=0; worker_index < workers; worker_index++) {
+        for (int row_index=1; row_index <= working_strip_height; row_index++) {
+            for (int int_index=0; int_index < ints_in_row; int_index++){
                 print_int_as_bits(worker_strips[worker_index][row_index*ints_in_row + int_index]);
+                printf("   [%i]%i", worker_index, row_index*ints_in_row + int_index);
             }
             printf("\n");
         }

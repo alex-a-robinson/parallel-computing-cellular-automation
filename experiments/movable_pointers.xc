@@ -2,11 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#define INT_SIZE 32
 
-//#include "constants.h"
-//#include "utils.xc"
-//#include "utils/utils.h"
+#include "constants.h"
+#include "utils.xc"
+#include "utils/utils.h"
 
 int ceil_div(int a, int b) {
     return (a/b) + ((a%b)?1:0);
@@ -55,10 +54,20 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
             current_strip[j] = 0;
             if (worker_id == 1) current_strip[j] = 0x55555555;
             if (worker_id == 3) current_strip[j] = 0xaaaaaaaa;
-        static uint * movable temp_ref = &(current_strip[0]); //TODO: dsicuss this 0
+        static uint * movable temp_ref = current_strip; //TODO: dsicuss this 0
         worker_strips[worker_id] = move(temp_ref);
         }
-        //print_bits_array(worker_strips[worker_id], MAX_INTS_IN_STRIP);
+
+        printf("-\n");
+        for (int i = 0; i < MAX_INTS_IN_STRIP; i++) {
+            //TODO add 2d fucnitonality
+            for (int j=0 ; j<INT_SIZE; j++){
+                printf("%i", (worker_strips[worker_id][i] & (1<<(INT_SIZE-j-1))) ? 1 : 0);
+            }
+            printf("\n");
+        }
+        printf("\n");
+
     }
     printf("-------------\n");
 
@@ -70,6 +79,8 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
         for (int worker_id=0; worker_id < workers; worker_id++) {
             int previous_worker_id = (worker_id-1) % workers;
             int next_worker_id = (worker_id+1) % workers;
+
+            printf("%i, %i, %i, %i \n", worker_id, previous_worker_id, last_working_row, &(worker_strips[previous_worker_id][last_working_row]));
 
             memcpy(&(worker_strips[worker_id][top_overlap_row]), &(worker_strips[previous_worker_id][last_working_row]), ints_in_row * sizeof(int));
 

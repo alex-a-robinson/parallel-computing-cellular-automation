@@ -36,7 +36,7 @@ void print_array(unsigned int array[], unsigned int n) {
 unsigned int array_to_bits(unsigned int array[], unsigned int n){
 	unsigned int bits = 0;
 	for(unsigned int i=0 ; i<n ; i++){
-		bits |= ((array[i]?1:0) << i);
+		bits |= ((array[i]?1:0) << n-i-1); //fills from right to left
 	}
 	return bits;
 }

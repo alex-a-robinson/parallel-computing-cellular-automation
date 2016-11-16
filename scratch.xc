@@ -57,7 +57,7 @@ interface worker_farmer {
 void farmer(int id, client interface worker_farmer wf_i[workers], static const uint workers) {
     printf("[%i] Farmer init\n", id);
     // TODO read in from image
-    const int width = 32;
+    const int width = 16;
     const int height = 8;
 
     if (height % workers) {
@@ -70,19 +70,15 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
     //int ints_in_strip = (working_strip_height+2)*ints_in_row;
     //TODO add availabile_workers when different
 
-    int top_overlap_row = 0;
-    int first_working_row = ints_in_row;
-    int last_working_row = ints_in_row * working_strip_height;
-    int bottom_overlap_row = ints_in_row * (working_strip_height + 1);
 
     uint worker_strips[workers][MAX_INTS_IN_STRIP]={{0}};
 
     //NOTE arrays used for testing, will be image input later
 
 
-    //makes columns
+    // //makes columns
     // for (int worker_id=0; worker_id<workers; worker_id++) {
-    //     for (int j=0; j<ints_in_strip; j++) {
+    //     for (int j=0; j<MAX_INTS_IN_STRIP; j++) {
     //         worker_strips[worker_id][j] = 0x55555555;
     //         //if (worker_id == 1) worker_strips[worker_id][j] = 0x55555555;
     //         //if (worker_id == 3) worker_strips[worker_id][j] = 0x55555555;
@@ -90,29 +86,43 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
     //     //print_bits_array(worker_strips[worker_id], MAX_INTS_IN_STRIP);
     // }
 
-    //makes glider
-    worker_strips[0][1] = 0x40000000;
-    worker_strips[0][2] = 0x20000000;
-    worker_strips[1][1] = 0xE0000000;
+    // //makes glider
+    // worker_strips[0][1] = 0x00400000;
+    // worker_strips[0][2] = 0x00200000;
+    // worker_strips[1][1] = 0x00E00000;
+
+    //makes diagonal
+    worker_strips[0][1] = 0x80000000;
+    worker_strips[0][2] = 0x40000000;
+    worker_strips[1][1] = 0x20000000;
+    worker_strips[1][2] = 0x10000000;
+    worker_strips[2][1] = 0x08000000;
+    worker_strips[2][2] = 0x04000000;
+    worker_strips[3][1] = 0x02000000;
+    worker_strips[3][2] = 0x01000000;
 
     int pause = 0; // TODO update with button press
     while (!pause) {
 
-        //print_strips_as_grid(worker_strips, working_strip_height, workers, ints_in_row);
+        print_strips_as_grid(worker_strips, working_strip_height, workers, ints_in_row);
+
         // TODO: calculate strip stats
 
+        int top_overlap_row = 0;
+        int first_working_row = ints_in_row;
+        int last_working_row = ints_in_row * working_strip_height;
+        int bottom_overlap_row = ints_in_row * (working_strip_height + 1);
+        //update neighboring overlaps
         for (int worker_id=0; worker_id < workers; worker_id++) {
             int previous_worker_id = (worker_id-1) % workers;
             int next_worker_id = (worker_id+1) % workers;
-
             memcpy(&(worker_strips[worker_id][top_overlap_row]), &(worker_strips[previous_worker_id][last_working_row]), ints_in_row * sizeof(int));
-
             memcpy(&(worker_strips[worker_id][bottom_overlap_row]), &(worker_strips[next_worker_id][first_working_row]), ints_in_row * sizeof(int));
+        }
 
-            printf("[%i] tick, \n", worker_id);
+        for (int worker_id=0; worker_id < workers; worker_id++) {
+            printf("[%i] tick, ", worker_id);
             wf_i[worker_id].tick(worker_strips[worker_id], first_working_row, last_working_row, width, ints_in_row);
-
-            //print_bits_array(worker_strips[worker_id], MAX_INTS_IN_STRIP);
         }
 
         int workers_done = workers;
@@ -135,26 +145,40 @@ void worker(int id, server interface worker_farmer wf_i) {
     while (1) {
         select {
             case wf_i.tick(unsigned int strip_ref[], uint first_working_row, uint last_working_row, uint width, uint ints_in_row):
-                // Copy into our local strip to work on
+
                 memcpy(old_strip, strip_ref, MAX_INTS_IN_STRIP * sizeof(int));
-                print_bits_array(old_strip, MAX_INTS_IN_STRIP);
-                //TODO after lunch
-                    //number 3 bottom not overlapping to get 1s top
-                    //number 1 isnt doing conway logic
-                    //check bit filling side
 
-                for (int row=first_working_row; row < last_working_row; row++) {
-                    for (int int_index=0; int_index < ints_in_row; int_index++) {
-                        uint bit_array[INT_SIZE]={0}; //NOTE: optimize by memset'ing the same memory
-                        for (int bit_index=0; bit_index < INT_SIZE; bit_index++) {
-                            if (int_index*INT_SIZE + bit_index >= width) break;
-                            int cell_index = row*width + int_index*INT_SIZE + bit_index;
-                            bit_array[bit_index] = calc_cell(cell_index, old_strip, width);
-                        }
+                //print_bits_array(old_strip, MAX_INTS_IN_STRIP);
 
-                        strip_ref[row*ints_in_row + int_index] = array_to_bits(bit_array, INT_SIZE);
+                for (int int_index=first_working_row; int_index <= last_working_row; int_index++) {
+                    uint bit_array[INT_SIZE]={0}; //NOTE optimize by memset'ing the same memory?
+
+                    uint end_of_int = ((width % INT_SIZE) && (int_index % ints_in_row == ints_in_row-1)) ? width % INT_SIZE : INT_SIZE;
+
+                    for (int bit_index=0; bit_index < end_of_int; bit_index++) {
+                        int cell_index = int_index*INT_SIZE + bit_index;
+                        bit_array[bit_index] = calc_cell(cell_index, old_strip, width);
                     }
+                    strip_ref[int_index] = array_to_bits(bit_array, INT_SIZE);
                 }
+//TODO
+//side wrapping (edge glider
+//width < 32  disapear
+
+                //
+                // for (int row=first_working_row; row < last_working_row; row++) {
+                //     for (int int_index=0; int_index < ints_in_row; int_index++) {
+                //         uint bit_array[INT_SIZE]={0}; //NOTE: optimize by memset'ing the same memory?
+                //
+                //         for (int bit_index=0; bit_index < INT_SIZE; bit_index++) {
+                //             if (int_index*INT_SIZE + bit_index >= width) break;
+                //             int cell_index = row*width + int_index*INT_SIZE + bit_index;
+                //             bit_array[bit_index] = calc_cell(cell_index, old_strip, width);
+                //         }
+                //
+                //         strip_ref[row*ints_in_row + int_index] = array_to_bits(bit_array, INT_SIZE);
+                //     }
+                // }
 
                 //memcpy(strip_ref, old_strip, MAX_INTS_IN_STRIP * sizeof(int));
 

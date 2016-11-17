@@ -8,8 +8,8 @@
 #define MAX_WORKERS 4
 
 // Image Constants
-#define IMHT 16 // Image height
-#define IMWD 16 // Image width
+#define MAX_WIDTH 512 // Image height
+#define MAX_HEIGHT 512 // Image width
 
 // Orientation
 #define FXOS8700EQ_I2C_ADDR 0x1E  // register addresses for orientation

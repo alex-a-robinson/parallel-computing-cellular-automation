@@ -3,6 +3,7 @@
 #include "tests.h"
 #include "logic/strip_farmer.xc"
 
+/*
 void test_calc_cell() {
     printf("-- calc_cell --\n");
 
@@ -50,3 +51,4 @@ void test_strip_farmer() {
     test_worker();
     printf("========\n\n");
 }
+*/

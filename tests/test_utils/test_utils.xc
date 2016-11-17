@@ -3,6 +3,7 @@
 #include "utils/utils.xc"
 #include "utils.h"
 
+/*
 void test_get_bit(){
     printf("-- get_bit --\n");
 
@@ -27,3 +28,4 @@ void test_utils() {
     test_get_bit();
     printf("========\n\n");
 }
+*/

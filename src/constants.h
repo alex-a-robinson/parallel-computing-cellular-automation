@@ -5,6 +5,7 @@
 //const static int INT_SIZE = sizeof(unsigned int)*8; //TODO test
 #define INT_SIZE 32
 #define MAX_INTS_IN_STRIP  4 // TODO Optimise for memory
+#define MAX_WORKERS 4
 
 // Image Constants
 #define IMHT 16 // Image height

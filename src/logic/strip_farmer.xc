@@ -1,17 +1,27 @@
+#include <platform.h>
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 #include "constants.h"
 #include "utils/utils.h"
+#include "utils/debug.h"
+
+#include "logic/farmer_interfaces.h"
+#include "logic/strip_farmer.h"
+
+
+#include "utils.xc" // DEBUGING
 
 
 // Finds neighbours, sums and returns new value
-uint calc_cell(uint index, uint strip[], uint width) {
-	uint sum = 0;
-
-	// TODO: Opptimise with static indexs
+uint calc_cell(uint index, uint strip[], uint width, uint ints_in_row) {
+	uint sum = 0;// TODO: Optimise with static indexs
 	for (int r=-1; r < 2; r++) {
-		uint row_scaler = (index / width + r) * width;
+        uint padded_width = ints_in_row * INT_SIZE;
+		uint row_scaler = r * padded_width + (index/padded_width)*padded_width;
 		for (int c=-1; c < 2; c++) {
-			uint neighbour_index = ((index + c) % width + row_scaler);
+			uint neighbour_index = ((index + c) % padded_width) % width + row_scaler;
 			if (!(r == 0 && c == 0)) {
 				sum += get_bit(strip, neighbour_index);
 			}
@@ -32,40 +42,88 @@ uint calc_cell(uint index, uint strip[], uint width) {
 }
 
 
+void worker(int id, server interface worker_farmer wf_i) {
+    LOG(IFO, "[%i] Worker init\n", id);
+    uint old_strip[MAX_INTS_IN_STRIP];
 
+    while (1) {
+        select {
+            case wf_i.tick(unsigned int strip_ref[], uint first_working_row, uint last_working_row, uint width, uint ints_in_row):
+                memcpy(old_strip, strip_ref, MAX_INTS_IN_STRIP * sizeof(int));
 
- void worker(uint grid[], uint updated_strip[], uint start_index, uint number_of_cells, uint width, uint height) {
-    //Given a strip with lines either side returns the new values of the new values of the strip
-    for (uint i = 0; i < number_of_cells; i++ ){
-		printf("%i-%i ",i, calc_cell((i+start_index) % (width*height), grid, width, height));
-		 //TODO updated_strip[i] = calc_cell((i+start_index) % (width*height), grid, width, height);
-	 }
+                for (int int_index=first_working_row; int_index <= last_working_row; int_index++) {
+                    uint bit_array[INT_SIZE]={0}; //NOTE optimize by memset'ing the same memory?
 
- }
+                    uint end_of_int = ((width % INT_SIZE) && (int_index % ints_in_row == ints_in_row-1)) ? width % INT_SIZE : INT_SIZE;
+                    for (int bit_index=0; bit_index < end_of_int; bit_index++) {
+                        int cell_index = int_index*INT_SIZE + bit_index;
 
+                        bit_array[bit_index] = calc_cell(cell_index, old_strip, width, ints_in_row);
+                }
+                    strip_ref[int_index] = array_to_bits(bit_array, INT_SIZE);
+                }
 
- void farmer(uint grid[], const uint width, const uint height, const uint workers_available) {
-    // if workers_available == 1: //TODO: needed??
-    //     return [grid[(height - 1) * width:] + grid + grid[:width]]
-
-     uint strip_size = height / workers_available + ((height % workers_available)?1:0);
-     uint workers_required = height / strip_size + ((height % strip_size)?1:0);
-	 //uint cells_in_strip = width*strip_size;
-
-	 //uint updated_strips[4][32*4]; // TODO: change to  [workers_required][cells_in_strip]
-	 par (uint i=0 ; i < workers_required ; i++){ //TODO make par
-		  //TODO worker(grid, updated_strips[i], i * strip_size * width, strip_size * width, width, height);
-	 }//TODO: start channels as arays aren't working
-
-
+                wf_i.tock();
+                break;
+        }
+    }
 }
 
-/*
-void set_bit(uint array[], uint index, uint val) {
-	if (val) {
-		array[index / INT_SIZE] |= (1 << (INT_SIZE - (index % INT_SIZE)) - 1);
-	} else {
-		array[index / INT_SIZE] &= (0 << (INT_SIZE - (index % INT_SIZE)));
-	}
+void farmer(int id, client interface worker_farmer wf_i[workers], static const uint workers,
+			server interface farmer_button fb, client output_gpio_if led) {
+    LOG(IFO, "[%i] Farmer init\n", id);
+    // TODO read in from image
+    const int width = 32;
+    const int height = 8;
+
+	int tick = 0;
+
+    if (height % workers) {
+        LOG(ERR, "Error: incompatible height to workers ratio\n\n");
+        return;
+    }
+    int working_strip_height = height / workers; // TODO put in variable length strips?
+    int ints_in_row = ceil_div(width, INT_SIZE);
+    //TODO add availabile_workers when different
+
+    uint worker_strips[workers][MAX_INTS_IN_STRIP]={{0}};
+
+	// TODO Read in from interface
+
+    int pause = 0; // TODO update with button press
+    while (!pause) {
+
+        // system("clear"); DEBUG
+        print_strips_as_grid(worker_strips, working_strip_height, workers, ints_in_row);
+
+        // TODO: calculate strip stats
+
+        int top_overlap_row = 0;
+        int first_working_row = ints_in_row;
+        int last_working_row = ints_in_row * working_strip_height;
+        int bottom_overlap_row = ints_in_row * (working_strip_height + 1);
+
+        //update neighboring overlaps
+        for (int worker_id=0; worker_id < workers; worker_id++) {
+            int previous_worker_id = (worker_id-1) % workers;
+            int next_worker_id = (worker_id+1) % workers;
+            memcpy(&(worker_strips[worker_id][top_overlap_row]), &(worker_strips[previous_worker_id][last_working_row]), ints_in_row * sizeof(int));
+            memcpy(&(worker_strips[worker_id][bottom_overlap_row]), &(worker_strips[next_worker_id][first_working_row]), ints_in_row * sizeof(int));
+        }
+
+        for (int worker_id=0; worker_id < workers; worker_id++) {
+            wf_i[worker_id].tick(worker_strips[worker_id], first_working_row, last_working_row, width, ints_in_row);
+        }
+
+        int workers_done = workers;
+        while (!workers_done) { // TODO: possible deadlock?
+            select {
+                case wf_i[int worker_id].tock():
+                    workers_done--;
+                    break;
+            }
+        }
+		tick++;
+		led.output(tick % 2); // Blink LED, might not work
+    }
 }
-*/

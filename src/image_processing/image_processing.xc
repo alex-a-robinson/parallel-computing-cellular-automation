@@ -4,11 +4,17 @@
 #include "pgmIO.h"
 #include "constants.h"
 
+
 // Write pixel stream from channel c_in to PGM image file
-void write_image(char outfname[], chanend c_in) {
+void write_image(char outfname[], client interface farmer_write_image fwi, client output_gpio_if led) {
   int res;
   unsigned char line[IMWD];
 
+  // TODO:
+  // Light + unlight led
+  // Get int from farmer, unpack into bit array, write image, get next
+
+  /*
   // Open PGM file
   printf("DataOutStream: Start...\n");
   res = _openoutpgm(outfname, IMWD, IMHT);
@@ -30,12 +36,20 @@ void write_image(char outfname[], chanend c_in) {
   _closeoutpgm();
   printf("DataOutStream: Done...\n");
   exit(0);
+  */
 }
 
 // Read Image from PGM file from path infname[] to channel c_out
-void read_image(char infname[], chanend c_out) {
+void read_image(char infname[], client interface read_image_farmer rif,  client output_gpio_if led) {
   int res;
   unsigned char line[IMWD];
+
+  // TODO
+  // Light + unlight led
+  // Read 32 ints, pack into bit array, convert to int, send to farmer,
+
+  /*
+
   printf("DataInStream: Start...\n");
 
   // Open PGM file
@@ -58,4 +72,5 @@ void read_image(char infname[], chanend c_out) {
   // Close PGM image file
   _closeinpgm();
   printf("DataInStream: Done...\n");
+  */
 }

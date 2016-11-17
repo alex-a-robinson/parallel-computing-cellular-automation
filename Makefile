@@ -22,6 +22,7 @@ bin/gol.xe: src/*
 		-Ilibs/i2c/api -Ilibs/xassert/api \
 		-Ilibs/gpio/api -Ilibs/gpio/api \
 		-Ilibs/logging/api -Isrc/ libs/i2c/src/* \
+		-Itests \
 		libs/xassert/src/* libs/gpio/src/* libs/logging/src/* \
 		src/*.xc src/*.h src/logic/* src/image_processing/* src/controls/* src/utils/*
 

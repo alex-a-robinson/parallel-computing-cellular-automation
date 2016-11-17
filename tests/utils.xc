@@ -33,14 +33,6 @@ void print_array(unsigned int array[], unsigned int n) {
     printf("\n");
 }
 
-unsigned int array_to_bits(unsigned int array[], unsigned int n){
-	unsigned int bits = 0;
-	for(unsigned int i=0 ; i<n ; i++){
-		bits |= ((array[i]?1:0) << n-i-1); //fills from right to left
-	}
-	return bits;
-}
-
 void print_strips_as_grid(unsigned int worker_strips[workers][MAX_INTS_IN_STRIP], unsigned int working_strip_height, unsigned int workers, unsigned int ints_in_row) {
     for (int worker_index=0; worker_index < workers; worker_index++) {
         for (int row_index=1; row_index <= working_strip_height; row_index++) {

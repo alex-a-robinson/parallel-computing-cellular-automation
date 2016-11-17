@@ -5,7 +5,6 @@
 
 #include "constants.h"
 #include "utils.xc"
-//#include "utils/utils.h"
 
 
 unsigned int get_bit(unsigned int array[], int cell_index) {
@@ -22,12 +21,10 @@ uint calc_cell(uint index, uint strip[], uint width, uint ints_in_row) {
 		uint row_scaler = r * padded_width + (index/padded_width)*padded_width;
 		for (int c=-1; c < 2; c++) {
 			uint neighbour_index = ((index + c) % padded_width) % width + row_scaler;
-            //printf(" %i: %i-%i  ", index, row_scaler, neighbour_index);
 			if (!(r == 0 && c == 0)) {
 				sum += get_bit(strip, neighbour_index);
 			}
 		}
-        //printf("\n");
 	}
 	switch(sum) {
     	case 0: // All dead, cell dies
@@ -49,13 +46,11 @@ int ceil_div(int a, int b) {
 
 // Define interface
 interface worker_farmer {
-    [[guarded]] [[clears_notification]] void init_strip(int start_index, int number_of_cells, int width, int height);
     [[notification]] slave void tock();
-    [[guarded]] void tick(unsigned int strip_ref[], uint first_working_row, uint last_working_row, uint widths, uint ints_in_row);
+    [[clears_notification]] void tick(unsigned int strip_ref[], uint first_working_row, uint last_working_row, uint widths, uint ints_in_row);
 };
 
 void farmer(int id, client interface worker_farmer wf_i[workers], static const uint workers) {
-    //setvbuf(stdout, NULL, _IONBF, 0);
     printf("[%i] Farmer init\n", id);
     // TODO read in from image
     const int width = 32;
@@ -66,17 +61,13 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
         return;
     }
     int working_strip_height = height / workers; // TODO put in variable length strips?
-    //int number_of_cells = working_strip_height * width;
     int ints_in_row = ceil_div(width, INT_SIZE);
-    //int ints_in_strip = (working_strip_height+2)*ints_in_row;
     //TODO add availabile_workers when different
 
 
     uint worker_strips[workers][MAX_INTS_IN_STRIP]={{0}};
 
-    //NOTE arrays used for testing, will be image input later
-
-
+    // TESTING
     //makes columns
     // for (int worker_id=0; worker_id<workers; worker_id++) {
     //     for (int j=0; j<MAX_INTS_IN_STRIP; j++) {
@@ -114,6 +105,7 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
         int first_working_row = ints_in_row;
         int last_working_row = ints_in_row * working_strip_height;
         int bottom_overlap_row = ints_in_row * (working_strip_height + 1);
+
         //update neighboring overlaps
         for (int worker_id=0; worker_id < workers; worker_id++) {
             int previous_worker_id = (worker_id-1) % workers;
@@ -123,7 +115,6 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
         }
 
         for (int worker_id=0; worker_id < workers; worker_id++) {
-            //printf("[%i] tick, ", worker_id);
             wf_i[worker_id].tick(worker_strips[worker_id], first_working_row, last_working_row, width, ints_in_row);
         }
 
@@ -135,7 +126,6 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
                     break;
             }
         }
-        printf("all workers done.\n");
     }
 }
 
@@ -143,30 +133,23 @@ void worker(int id, server interface worker_farmer wf_i) {
     printf("[%i] Worker init\n", id);
     uint old_strip[MAX_INTS_IN_STRIP];
 
-    // Work on each tick
     while (1) {
         select {
             case wf_i.tick(unsigned int strip_ref[], uint first_working_row, uint last_working_row, uint width, uint ints_in_row):
-
-
                 memcpy(old_strip, strip_ref, MAX_INTS_IN_STRIP * sizeof(int));
-                //print_bits_array(old_strip, MAX_INTS_IN_STRIP);
 
                 for (int int_index=first_working_row; int_index <= last_working_row; int_index++) {
                     uint bit_array[INT_SIZE]={0}; //NOTE optimize by memset'ing the same memory?
 
                     uint end_of_int = ((width % INT_SIZE) && (int_index % ints_in_row == ints_in_row-1)) ? width % INT_SIZE : INT_SIZE;
-                    //printf("\n %i %i %i \n", end_of_int, int_index, ints_in_row);
                     for (int bit_index=0; bit_index < end_of_int; bit_index++) {
                         int cell_index = int_index*INT_SIZE + bit_index;
 
-                        //bit_array[bit_index] = get_bit(old_strip, cell_index);
                         bit_array[bit_index] = calc_cell(cell_index, old_strip, width, ints_in_row);
                 }
                     strip_ref[int_index] = array_to_bits(bit_array, INT_SIZE);
                 }
 
-                //printf("[%i] tock,\n", id);
                 wf_i.tock();
                 break;
         }
@@ -178,10 +161,8 @@ int main(void) {
 
     par {
         on tile[0] : farmer(9, wf_i, 4);
-        on tile[0] : worker(0, wf_i[0]);
-        on tile[0] : worker(1, wf_i[1]);
-        on tile[0] : worker(2, wf_i[2]);
-        on tile[0] : worker(3, wf_i[3]);
+		par (int i=0; i <4; i++)
+        	on tile[0] : worker(i, wf_i[i]);
     }
     return 0;
 }

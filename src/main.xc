@@ -13,7 +13,8 @@
 #include "controls/controls.h"
 #include "constants.h"
 #include "utils/debug.h"
-
+#include "logic/strip_farmer.h"
+#include "logic/farmer_interfaces.h"
 
 // Interface ports to orientation
 on tile[0] : port p_scl = XS1_PORT_1E;
@@ -23,61 +24,23 @@ on tile[0] : port p_sda = XS1_PORT_1F;
 on tile[0] : in port explorer_buttons = XS1_PORT_4E;
 on tile[0] : out port explorer_leds = XS1_PORT_4F;
 
-// Define farmer interfaces
-// TODO
-interface farmer_orientation_control {
-    void pause(int x);
-};
+// Define interfaces
 
-interface farmer_button_control {
-    void start_read(int x);
-    void start_write(int x);
-};
-
-interface farmer_read_image {
-    void start_read(int x);
-    [[clears_notification]] int get_data();
-    [[notification]] slave void data_ready(void);
-};
-
-interface farmer_write_image {
-    void start_write(int x);
-    [[clears_notification]] int get_data();
-    [[notification]] slave void data_ready(void);
-};
-
-/* Start your implementation by changing this function to implement the game of life
- * by farming out parts of the image to worker threads who implement it...
- * Currently the function just inverts the image
-*/
-void distributor(chanend c_in, chanend c_out, chanend fromAcc) {
-  unsigned char val;
-
-  // Starting up and wait for tilting of the xCore-200 Explorer
-  LOG(IFO, "ProcessImage: Start, size = %dx%d", IMHT, IMWD);
-  LOG(IFO, "Waiting for Board Tilt...");
-  fromAcc :> int value;
-
-  // Read in and do something with your image values..
-  // This just inverts every pixel, but you should
-  // change the image according to the "Game of Life"
-  LOG(IFO, "Processing...");
-  for(int y=0; y < IMHT; y++) {   // go through all lines
-    for(int x=0; x < IMWD; x++) { // go through each pixel per line
-      c_in :> val;                  // read the pixel value
-      c_out <: (unsigned char)(val ^ 0xFF); // send some modified pixel out
-    }
-  }
-  LOG(IFO, "One processing round completed...");
-}
 
 // Orchestrate concurrent system and start up all threads
 int main(void) {
     i2c_master_if i2c[1];               //interface to orientation
-    chan c_inIO, c_outIO, c_control;    //extend your channel definitions here
+    //chan c_inIO, c_outIO, c_control;    //extend your channel definitions here
 
     input_gpio_if i_explorer_buttons[2];
-    output_gpio_if i_explorer_leds[4];
+    output_gpio_if i_explorer_leds[4]; // 0 = GREEN, 1 = RGB_BLUE, 2 = RGB_GREEN, 3 = RGB_RED
+
+    interface worker_farmer wf_i[MAX_WORKERS];
+
+    interface farmer_button_control fbc;
+    interface read_image_farmer rif;
+    interface farmer_write_image fwi;
+    interface farmer_orientation_control foc;
 
     par {
         // input/output cores
@@ -86,20 +49,20 @@ int main(void) {
         on tile[0] : output_gpio(i_explorer_leds, 4, explorer_leds, null); // provides led output
 
         // Control cores
-        on tile[0] : orientation_control(i2c[0], c_control);
-        on tile[0] : button_control(i_explorer_buttons[0], i_explorer_buttons[1],
-                             i_explorer_leds[0], i_explorer_leds[1],
-                             i_explorer_leds[2], i_explorer_leds[3]);
+        on tile[0] : orientation_control(i2c[0], foc, i_explorer_leds[3]);
+        on tile[0] : button_control(fbc, i_explorer_buttons[0], i_explorer_buttons[1]);
 
         // Image cores
-        on tile[0] : read_image("images/test.pgm", c_inIO);
-        on tile[0] : write_image("images/testout.pgm", c_outIO);
+        on tile[0] : read_image("images/test.pgm", rif, i_explorer_leds[2]);
+        on tile[0] : write_image("images/testout.pgm", fwi, i_explorer_leds[1]);
 
         // Farmer
-        on tile[0] : distributor(c_inIO, c_outIO, c_control);//thread to coordinate work on image
+        on tile[1] : farmer(9, wf_i, MAX_WORKERS, fbc, i_explorer_leds[0]);
 
         // Workers
-        // TODO
+        par (int i=0; i < MAX_WORKERS; i++) {
+            on tile[1] : worker(i, wf_i[i]);
+        }
     }
 
     return 0;

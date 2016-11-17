@@ -52,9 +52,9 @@ int main(void) {
         on tile[0] : orientation_control(i2c[0], foc, i_explorer_leds[3]);
         on tile[0] : button_control(fbc, i_explorer_buttons[0], i_explorer_buttons[1]);
 
-        // Image cores
-        on tile[0] : read_image("images/test.pgm", rif, i_explorer_leds[2]);
-        on tile[0] : write_image("images/testout.pgm", fwi, i_explorer_leds[1]);
+        //NOTE: combine onto single core later?
+        on tile[0] : image_reader("images/test.pgm", rif, i_explorer_leds[2]);
+        on tile[0] : image_writer("images/testout.pgm", fwi, i_explorer_leds[1]);
 
         // Farmer
         on tile[1] : farmer(9, wf_i, MAX_WORKERS, fbc, i_explorer_leds[0]);

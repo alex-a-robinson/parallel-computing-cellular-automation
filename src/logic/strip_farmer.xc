@@ -52,7 +52,7 @@ void worker(int id, server interface worker_farmer wf_i) {
                 memcpy(old_strip, strip_ref, MAX_INTS_IN_STRIP * sizeof(int));
 
                 for (int int_index=first_working_row; int_index <= last_working_row; int_index++) {
-                    uint bit_array[INT_SIZE]={0}; //NOTE optimize by memset'ing the same memory?
+                    uint bit_array[INT_SIZE]={0}; //TODO take init outside, reset each loop
 
                     uint end_of_int = ((width % INT_SIZE) && (int_index % ints_in_row == ints_in_row-1)) ? width % INT_SIZE : INT_SIZE;
                     for (int bit_index=0; bit_index < end_of_int; bit_index++) {

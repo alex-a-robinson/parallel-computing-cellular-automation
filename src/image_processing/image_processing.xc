@@ -48,45 +48,35 @@ void read_image(char filename[], client interface read_image_farmer rif,  client
 
 // Write pixel stream from channel c_in to PGM image file
 void write_image(char filename[], client interface farmer_write_image fwi, client output_gpio_if led) {
-    int led_status = 0;
-    fwi.ready_for_data(); //NOTE: multiple images, change here
+    fwi.ready_for_data();
+    int width = 0;
     while(1) {
         //fwi.ready_for_data(); // TODO: find out how interfaces handle this being called repeatedly
-    switch {
-        case fwi.data(int data):
-            if (!led_status) { //prevents multiple calls
-                led_status = 1;
+        switch {
+            case fwi.header(int _width, int _height):
                 led.output(1);
-
-            unsigned char line[width];
-
-            // Open PGM file
-            printf("DataOutStream: Start...\n");
-            int res = _openoutpgm(outfname, width, height);
-            if(res) {
-                printf("DataOutStream: Error opening %s\n.", outfname);
-                return;
-            }
-
-          // Compile each line of the image and write the image line-by-line
-          for(int y = 0; y < height; y++) {
-            for(int x = 0; x < width; x++) {
-              c_in :> line[x];
-            }
-            _writeoutline(line, width);
-            printf("DataOutStream: Line written...\n");
-          }
-
-          // Close the PGM image
-          _closeoutpgm();
-          printf("DataOutStream: Done...\n");
+                width = _width;
+                printf("DataOutStream: Start...\n");
+                int sucessful_create = _openoutpgm(filename, _width, _height);
+                if(!sucessful_create) {
+                    printf("DataOutStream: Error opening %s\n.", filename);
+                    return;
+                }
+                fwi.ready_for_data();
 
 
-              fwi.ready_for_data();
-          case end_of_data():
-              led_status = 0;
-              led.output(0)
-      }
+            case fwi.data(unsigned int num):
+                char bitfield_string[INT_SIZE+1] //NOTE optimise by initialising elsewhere?
+                int_to_bitstring(num, bitfield_array_buffer);
+                _writeoutline(bitfield_array_buffer, INT_SIZE);
+                printf("DataOutStream: Line written...\n");
+                fwi.ready_for_data();
+
+            case fwi.end_of_data():
+                _closeoutpgm();
+                printf("DataOutStream: Done...\n");
+                led.output(0)
+
   }
 
 

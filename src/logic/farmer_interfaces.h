@@ -20,7 +20,8 @@ interface read_image_farmer { // GREEN LED
 }
 
 interface farmer_write_image { // BLUE LED
-    [[notification]] void ready_for_data();
+    [[notification]] slave void ready_for_data();
+    void header(int width, int height);
     void data(unsigned int num);
     [[clears_notification]] void end_of_data();
 }

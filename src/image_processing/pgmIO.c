@@ -82,12 +82,13 @@ int _openoutpgm(char fname[], int width, int height)
 	return 0;
 }
 
-int _writeoutline(unsigned char line[], int width)
+int _writeoutline(unsigned char line[], int width, )
 {
 	int nb;
 
 	if( _OUTFP == NULL )
 	{
+		printf("tried writing: _OUTFP == NULL\n");
 		return -1;
 	}
 

@@ -19,3 +19,10 @@ unsigned int array_to_bits(unsigned int array[], unsigned int n) {
 	}
 	return bits;
 }
+
+void int_to_bitstring(unsigned int num, char bitstring[]) {
+	for(int i=0 ; i<INT_SIZE ; i++){
+		bitstring[i] = (num & (1 << (INT_SIZE-i-1))) ? ('1':'0');
+	}
+	bitstring[INT_SIZE] = '\0';
+}

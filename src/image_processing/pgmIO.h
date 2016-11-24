@@ -1,8 +1,8 @@
 #ifndef PGMIO_H_
 #define PGMIO_H_
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 int _writepgm(unsigned char x[], int height, int width, char fname[]);

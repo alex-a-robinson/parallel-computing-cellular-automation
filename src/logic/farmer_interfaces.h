@@ -3,10 +3,11 @@
 
 interface worker_farmer_if {
     [[notification]] slave void tock();
-    [[clears_notification]] void tick(unsigned int strip_ref[], uint first_working_row, uint last_working_row, uint widths, uint ints_in_row);
+    [[clears_notification]] void tick(
+        unsigned int strip_ref[], uint first_working_row, uint last_working_row,
+        uint widths, uint ints_in_row);
 };
 
-// AHAS
 interface farmer_button_if {
     void start_read();
     void start_write();

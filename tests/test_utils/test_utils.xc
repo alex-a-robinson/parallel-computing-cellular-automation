@@ -1,7 +1,7 @@
-#include <stdio.h>
 #include "tests.h"
-#include "utils/utils.xc"
 #include "utils.h"
+#include "utils/utils.xc"
+#include <stdio.h>
 
 /*
 void test_get_bit(){

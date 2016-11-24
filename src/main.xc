@@ -31,8 +31,7 @@ int main(void) {
     i2c_master_if i2c[1]; // interface to orientation
 
     input_gpio_if i_explorer_buttons[2];
-    output_gpio_if i_explorer_leds[4]; // 0 = GREEN, 1 = RGB_BLUE, 2 =
-                                       // RGB_GREEN, 3 = RGB_RED
+    output_gpio_if i_explorer_leds[4]; // 0 = GREEN, 1 = RGB_BLUE, 2 = RGB_GREEN, 3 = RGB_RED
 
     interface worker_farmer_if workers_farmer[MAX_WORKERS];
 

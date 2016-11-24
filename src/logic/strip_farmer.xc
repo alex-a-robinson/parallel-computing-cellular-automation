@@ -73,61 +73,108 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
             server interface farmer_orientation_if farmer_orientation, server interface reader_farmer_if reader_farmer,
             client interface farmer_writer_if farmer_writer) {
     LOG(IFO, "[%i] Farmer init\n", id);
-    // TODO read in from image
-    const int width = 32;
-    const int height = 8;
 
-    int tick = 0;
-
-    if (height % workers) {
-        LOG(ERR, "Error: incompatible height to workers ratio\n\n");
-        return;
-    }
-    int working_strip_height = height / workers; // TODO put in variable length strips?
-    int ints_in_row = ceil_div(width, INT_SIZE);
-    // TODO add availabile_workers when different
-
+    int width, height, ints_in_row, working_strip_height;
+    int top_overlap_row, first_working_row, last_working_row, bottom_overlap_row;
     unsigned int worker_strips[workers][MAX_INTS_IN_STRIP] = {{0}};
 
-    // TODO Read in from interface
+    int play = 0;
+    int tick = 0;
+    int read_done = 0;
+    while (1) {
 
-    int pause = 0; // TODO update with button press
-    while (!pause) {
+        select {
+        case read_done => farmer_orientation.pause():
+            play = 0;
+            // TODO: calculate strip stats
+            break;
+        case read_done => farmer_orientation.play():
+            play = 1;
+            break;
 
-        // system("clear"); DEBUG
-        print_strips_as_grid(worker_strips, working_strip_height, workers, ints_in_row);
+        // Start Read/Write from farmer_buttons
+        case farmer_buttons.start_read():
+            reader_farmer.start_read();
+            // Read in entire image
+            while (!read_done) {
+                select {
+                case reader_farmer.dimensions(unsigned int _width, unsigned int _height):
+                    width = _width;
+                    height = _height;
 
-        // TODO: calculate strip stats
+                    if (height % workers) {
+                        LOG(ERR, "Error: incompatible height to workers ratio\n\n");
+                        return;
+                    }
+                    working_strip_height = height / workers; // TODO put in variable length strips?
+                    ints_in_row = ceil_div(width, INT_SIZE);
+                    top_overlap_row = 0;
+                    first_working_row = ints_in_row;
+                    last_working_row = ints_in_row * working_strip_height;
+                    bottom_overlap_row = ints_in_row * (working_strip_height + 1);
+                    // TODO add availabile_workers when different
+                    break;
 
-        int top_overlap_row = 0;
-        int first_working_row = ints_in_row;
-        int last_working_row = ints_in_row * working_strip_height;
-        int bottom_overlap_row = ints_in_row * (working_strip_height + 1);
-
-        // update neighboring overlaps
-        for (int worker_id = 0; worker_id < workers; worker_id++) {
-            int previous_worker_id = (worker_id - 1) % workers;
-            int next_worker_id = (worker_id + 1) % workers;
-            memcpy(&(worker_strips[worker_id][top_overlap_row]), &(worker_strips[previous_worker_id][last_working_row]),
-                   ints_in_row * sizeof(int));
-            memcpy(&(worker_strips[worker_id][bottom_overlap_row]), &(worker_strips[next_worker_id][first_working_row]),
-                   ints_in_row * sizeof(int));
-        }
-
-        for (int worker_id = 0; worker_id < workers; worker_id++) {
-            workers_farmer[worker_id].tick(worker_strips[worker_id], first_working_row, last_working_row, width,
-                                           ints_in_row);
-        }
-
-        int workers_done = workers;
-        while (!workers_done) { // TODO: possible deadlock?
-            select {
-            case workers_farmer[int worker_id].tock():
-                workers_done--;
-                break;
+                case reader_farmer.data(unsigned int data, int row_index, int int_index):
+                    int strip_index = row_index / working_strip_height;
+                    worker_strips[strip_index][int_index] = data;
+                    break;
+                case reader_farmer.read_done():
+                    read_done = 1;
+                    break;
+                }
             }
+            break; // start_read
+
+        case read_done => farmer_buttons.start_write():
+            farmer_writer.header(width, height);
+
+            // For each worker; for each int in working strip; when ready send data
+            for (int worker_id = 0; worker_id < workers; worker_id++) {
+                for (int int_index = first_working_row; int_index <= last_working_row; int_index++) {
+                    select {
+                    case farner_writer.ready_for_data():
+                        unsigned int size = ((width % INT_SIZE) && (int_index % ints_in_row == ints_in_row - 1))
+                                                ? width % INT_SIZE
+                                                : INT_SIZE;
+                        farmer_writer.data(worker_strips[worker_id][int_index], size);
+                        break;
+                    }
+                }
+            }
+            farmer_writer.end_of_data();
+            break; // start_write
         }
-        tick++;
-        led.output(tick % 2); // Blink LED, might not work
+
+        while (play) {
+            // system("clear"); DEBUG
+            print_strips_as_grid(worker_strips, working_strip_height, workers, ints_in_row);
+
+            // update neighboring overlaps
+            for (int worker_id = 0; worker_id < workers; worker_id++) {
+                int previous_worker_id = (worker_id - 1) % workers;
+                int next_worker_id = (worker_id + 1) % workers;
+                memcpy(&(worker_strips[worker_id][top_overlap_row]),
+                       &(worker_strips[previous_worker_id][last_working_row]), ints_in_row * sizeof(int));
+                memcpy(&(worker_strips[worker_id][bottom_overlap_row]),
+                       &(worker_strips[next_worker_id][first_working_row]), ints_in_row * sizeof(int));
+            }
+
+            for (int worker_id = 0; worker_id < workers; worker_id++) {
+                workers_farmer[worker_id].tick(worker_strips[worker_id], first_working_row, last_working_row, width,
+                                               ints_in_row);
+            }
+
+            int workers_done = workers;
+            while (!workers_done) { // TODO: possible deadlock?
+                select {
+                case workers_farmer[int worker_id].tock():
+                    workers_done--;
+                    break;
+                }
+            }
+            tick++;
+            led.output(tick % 2); // Blink LED, might not work
+        }
     }
 }

@@ -34,9 +34,12 @@ void image_reader(char filename[], client interface reader_farmer_if reader_farm
                 _readinline(line_buffer, width);
                 // for debug  for(int i=0; i<width; i++) print line_buffer[i];
                 for (int int_index = 0; int_index < width - INT_SIZE; int_index += INT_SIZE) {
-                    unsigned int end_of_int = ((width % INT_SIZE) && (int_index % ints_in_row == ints_in_row - 1)) ? width % INT_SIZE : INT_SIZE;
+                    unsigned int end_of_int = ((width % INT_SIZE) && (int_index % ints_in_row == ints_in_row - 1))
+                                                  ? width % INT_SIZE
+                                                  : INT_SIZE;
                     for (int bit_index = 0; bit_index < end_of_int; bit_index++) {
-                        bit_array_buffer[bit_index] = (int)line_buffer[int_index * INT_SIZE + bit_index]; // TODO casting here?
+                        bit_array_buffer[bit_index] =
+                            (int)line_buffer[int_index * INT_SIZE + bit_index]; // TODO casting here?
                     }
                     reader_farmer.data(array_to_bits(bit_array_buffer, INT_SIZE)); // NOTE: possible lock?
                 }

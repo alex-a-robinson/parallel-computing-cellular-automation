@@ -45,13 +45,15 @@ void worker(int id, server interface worker_farmer_if workers_farmer) {
 
     while (1) {
         select {
-        case workers_farmer.tick(unsigned int strip_ref[], unsigned int first_working_row, unsigned int last_working_row, unsigned int width, unsigned int ints_in_row):
+        case workers_farmer.tick(unsigned int strip_ref[], unsigned int first_working_row,
+                                 unsigned int last_working_row, unsigned int width, unsigned int ints_in_row):
             memcpy(old_strip, strip_ref, MAX_INTS_IN_STRIP * sizeof(int));
 
             for (int int_index = first_working_row; int_index <= last_working_row; int_index++) {
                 unsigned int bit_array[INT_SIZE] = {0}; // TODO take init outside, reset each loop
 
-                unsigned int end_of_int = ((width % INT_SIZE) && (int_index % ints_in_row == ints_in_row - 1)) ? width % INT_SIZE : INT_SIZE;
+                unsigned int end_of_int =
+                    ((width % INT_SIZE) && (int_index % ints_in_row == ints_in_row - 1)) ? width % INT_SIZE : INT_SIZE;
                 for (int bit_index = 0; bit_index < end_of_int; bit_index++) {
                     int cell_index = int_index * INT_SIZE + bit_index;
 
@@ -66,8 +68,10 @@ void worker(int id, server interface worker_farmer_if workers_farmer) {
     }
 }
 
-void farmer(int id, client interface worker_farmer_if workers_farmer[workers], static const unsigned int workers, server interface farmer_button_if farmer_buttons,
-            client interface output_gpio_if led) {
+void farmer(int id, client interface worker_farmer_if workers_farmer[workers], static const unsigned int workers,
+            server interface farmer_button_if farmer_buttons, client interface output_gpio_if led,
+            server interface farmer_orientation_if farmer_orientation, client interface reader_farmer_if reader_farmer,
+            server interface farmer_writer_if farmer_writer) {
     LOG(IFO, "[%i] Farmer init\n", id);
     // TODO read in from image
     const int width = 32;
@@ -104,12 +108,15 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
         for (int worker_id = 0; worker_id < workers; worker_id++) {
             int previous_worker_id = (worker_id - 1) % workers;
             int next_worker_id = (worker_id + 1) % workers;
-            memcpy(&(worker_strips[worker_id][top_overlap_row]), &(worker_strips[previous_worker_id][last_working_row]), ints_in_row * sizeof(int));
-            memcpy(&(worker_strips[worker_id][bottom_overlap_row]), &(worker_strips[next_worker_id][first_working_row]), ints_in_row * sizeof(int));
+            memcpy(&(worker_strips[worker_id][top_overlap_row]), &(worker_strips[previous_worker_id][last_working_row]),
+                   ints_in_row * sizeof(int));
+            memcpy(&(worker_strips[worker_id][bottom_overlap_row]), &(worker_strips[next_worker_id][first_working_row]),
+                   ints_in_row * sizeof(int));
         }
 
         for (int worker_id = 0; worker_id < workers; worker_id++) {
-            workers_farmer[worker_id].tick(worker_strips[worker_id], first_working_row, last_working_row, width, ints_in_row);
+            workers_farmer[worker_id].tick(worker_strips[worker_id], first_working_row, last_working_row, width,
+                                           ints_in_row);
         }
 
         int workers_done = workers;

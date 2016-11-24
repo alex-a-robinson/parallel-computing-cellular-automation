@@ -9,7 +9,8 @@
 #include "logic/farmer_interfaces.h"
 
 // Initialise and  read orientation, send first tilt event to channel
-void orientation_control(client interface i2c_master_if i2c, client interface farmer_orientation_if farmer_orientation, client output_gpio_if led) {
+void orientation_control(client interface i2c_master_if i2c, client interface farmer_orientation_if farmer_orientation,
+                         client output_gpio_if led) {
     i2c_regop_res_t result;
     char status_data = 0;
     int tilted = 0;
@@ -48,7 +49,8 @@ void orientation_control(client interface i2c_master_if i2c, client interface fa
     }
 }
 
-void button_control(client interface farmer_button_if farmer_buttons, client input_gpio_if button_1, client input_gpio_if button_2) {
+void button_control(client interface farmer_button_if farmer_buttons, client input_gpio_if button_1,
+                    client input_gpio_if button_2) {
     button_1.event_when_pins_eq(0);
     button_2.event_when_pins_eq(0);
 

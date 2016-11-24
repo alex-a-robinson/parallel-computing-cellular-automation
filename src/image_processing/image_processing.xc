@@ -3,12 +3,14 @@
 
 #include "pgmIO.h"
 #include "constants.h"
+#include "logic/farmer_interfaces.h"
+#include "image_processing.h"
 
-void read_image(char filename[], client interface read_image_farmer rif,  client output_gpio_if led) {
+void read_image(char filename[], client interface reader_farmer_if reader_farmer,  client output_gpio_if led) {
 
     while(1) {
         select{
-            case rif.start_read():
+            case reader_farmer.start_read():
                 led.output(1);
                 printf("DataInStream: Start...\n");
 
@@ -18,7 +20,7 @@ void read_image(char filename[], client interface read_image_farmer rif,  client
                     printf("DataInStream: Error openening %s\n.", filename);
                     return;
                 }
-                rif.dimensions(width, height);
+                reader_farmer.dimensions(width, height);
 
 
                 unsigned char line_buffer[MAX_WIDTH]; //NOTE: potentially change to int buffer so know size
@@ -33,27 +35,27 @@ void read_image(char filename[], client interface read_image_farmer rif,  client
                         for (int bit_index=0; bit_index < end_of_int; bit_index++) {
                             bit_array_buffer[bit_index] = (int) line_buffer[int_index*INT_SIZE + bit_index]; //TODO casting here?
                         }
-                        rif.data(array_to_bits(bit_array_buffer, INT_SIZE);
+                        reader_farmer.data(array_to_bits(bit_array_buffer, INT_SIZE);
                     }
                 }
 
                 _closeinpgm();
                 printf("DataInStream: Done...\n");
                 led.output(0);
-                rif.read_done();
+                reader_farmer.read_done();
                 break;
-
+            }
     }
 }
 
 // Write pixel stream from channel c_in to PGM image file
-void write_image(char filename[], client interface farmer_write_image fwi, client output_gpio_if led) {
-    fwi.ready_for_data();
+void write_image(char filename[], client interface farmer_writer_if farmer_writer, client output_gpio_if led) {
+    farmer_writer.ready_for_data();
     int width = 0;
     while(1) {
-        //fwi.ready_for_data(); // TODO: find out how interfaces handle this being called repeatedly
+        //farmer_writer.ready_for_data(); // TODO: find out how interfaces handle this being called repeatedly
         switch {
-            case fwi.header(int _width, int _height):
+            case farmer_writer.header(int _width, int _height):
                 led.output(1);
                 width = _width;
                 printf("DataOutStream: Start...\n");
@@ -62,17 +64,17 @@ void write_image(char filename[], client interface farmer_write_image fwi, clien
                     printf("DataOutStream: Error opening %s\n.", filename);
                     return;
                 }
-                fwi.ready_for_data();
+                farmer_writer.ready_for_data();
 
 
-            case fwi.data(unsigned int num):
+            case farmer_writer.data(unsigned int num):
                 char bitfield_string[INT_SIZE+1] //NOTE optimise by initialising elsewhere?
                 int_to_bitstring(num, bitfield_array_buffer);
                 _writeoutline(bitfield_array_buffer, INT_SIZE);
                 printf("DataOutStream: Line written...\n");
-                fwi.ready_for_data();
+                farmer_writer.ready_for_data();
 
-            case fwi.end_of_data():
+            case farmer_writer.end_of_data():
                 _closeoutpgm();
                 printf("DataOutStream: Done...\n");
                 led.output(0)

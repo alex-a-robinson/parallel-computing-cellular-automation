@@ -45,12 +45,12 @@ int ceil_div(int a, int b) {
 }
 
 // Define interface
-interface worker_farmer {
+interface worker_farmer_if {
     [[notification]] slave void tock();
     [[clears_notification]] void tick(unsigned int strip_ref[], uint first_working_row, uint last_working_row, uint widths, uint ints_in_row);
 };
 
-void farmer(int id, client interface worker_farmer wf_i[workers], static const uint workers) {
+void farmer(int id, client interface worker_farmer_if worker_farmer[workers], static const uint workers) {
     printf("[%i] Farmer init\n", id);
     // TODO read in from image
     const int width = 32;
@@ -115,13 +115,13 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
         }
 
         for (int worker_id=0; worker_id < workers; worker_id++) {
-            wf_i[worker_id].tick(worker_strips[worker_id], first_working_row, last_working_row, width, ints_in_row);
+            worker_farmer[worker_id].tick(worker_strips[worker_id], first_working_row, last_working_row, width, ints_in_row);
         }
 
         int workers_done = workers;
         while (!workers_done) { // TODO: possible deadlock?
             select {
-                case wf_i[int worker_id].tock():
+                case worker_farmer[int worker_id].tock():
                     workers_done--;
                     break;
             }
@@ -129,13 +129,13 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
     }
 }
 
-void worker(int id, server interface worker_farmer wf_i) {
+void worker(int id, server interface worker_farmer_if worker_farmer) {
     printf("[%i] Worker init\n", id);
     uint old_strip[MAX_INTS_IN_STRIP];
 
     while (1) {
         select {
-            case wf_i.tick(unsigned int strip_ref[], uint first_working_row, uint last_working_row, uint width, uint ints_in_row):
+            case worker_farmer.tick(unsigned int strip_ref[], uint first_working_row, uint last_working_row, uint width, uint ints_in_row):
                 memcpy(old_strip, strip_ref, MAX_INTS_IN_STRIP * sizeof(int));
 
                 for (int int_index=first_working_row; int_index <= last_working_row; int_index++) {
@@ -150,19 +150,19 @@ void worker(int id, server interface worker_farmer wf_i) {
                     strip_ref[int_index] = array_to_bits(bit_array, INT_SIZE);
                 }
 
-                wf_i.tock();
+                worker_farmer.tock();
                 break;
         }
     }
 }
 
 int main(void) {
-    interface worker_farmer wf_i[4];
+    interface worker_farmer_if worker_farmer[4];
 
     par {
-        on tile[0] : farmer(9, wf_i, 4);
+        on tile[0] : farmer(9, worker_farmer, 4);
 		par (int i=0; i <4; i++)
-        	on tile[0] : worker(i, wf_i[i]);
+        	on tile[0] : worker(i, worker_farmer[i]);
     }
     return 0;
 }

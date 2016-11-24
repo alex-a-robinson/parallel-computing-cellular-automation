@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 // Define interface
-/*interface worker_farmer {
+/*interface worker_farmer_if {
     void strip(int strip[], int updated_strip[], int start_index, int number_of_cells, int width, int height);
     [[clears_notification]] int get_worker_strip();
     [[notification]] slave void worker_done();

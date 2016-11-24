@@ -5,11 +5,12 @@
 #include "gpio.h"
 
 #include "constants.h"
-#include "logic/strip_farmer_interfaces.h";
+#include "controls.h"
+#include "logic/farmer_interfaces.h";
 
 // Initialise and  read orientation, send first tilt event to channel
 void orientation_control(client interface i2c_master_if i2c,
-                         client interface farmer_orientation_control foc,
+                         client interface farmer_orientation_if farmer_orientation,
                          client output_gpio_if led) {
     i2c_regop_res_t result;
     char status_data = 0;
@@ -40,18 +41,18 @@ void orientation_control(client interface i2c_master_if i2c,
         if (!tilted && x > TILTED_ANGLE) {
             tilted = 1;
             led.output(1);
-            foc.pause();
+            farmer_orientation.pause();
         } else if (tilted && x <= TILTED_ANGLE) {
             tilted = 0;
             led.output(0);
-            foc.play();
+            farmer_orientation.play();
         }
     }
 }
 
 
 
-void button_control(client interface farmer_button_control fbc,
+void button_control(client interface farmer_button_if farmer_button,
                     client input_gpio_if button_1, client input_gpio_if button_2) {
     button_1.event_when_pins_eq(0);
     button_2.event_when_pins_eq(0);
@@ -60,14 +61,14 @@ void button_control(client interface farmer_button_control fbc,
         select {
             case button_1.event(): // Start image read
                 if (button_1.input() == 0) {
-                    fbc.start_read();
+                    farmer_button.start_read();
                     button_1.event_when_pins_eq(1);
                 } else {
                     button_1.event_when_pins_eq(0);
                 }
             case button_2.event(): // Start image write
                 if (button_2.input() == 0) {
-                    fbc.start_write();
+                    farmer_button.start_write();
                     button_2.event_when_pins_eq(1);
                 } else {
                     button_2.event_when_pins_eq(0);

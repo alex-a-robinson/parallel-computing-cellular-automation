@@ -11,13 +11,13 @@ int ceil_div(int a, int b) {
 }
 
 // Define interface
-interface worker_farmer {
+interface worker_farmer_if {
     [[guarded]] [[clears_notification]] void init_strip(int start_index, int number_of_cells, int width, int height);
     [[notification]] slave void tock();
     [[guarded]] void tick(unsigned int* movable strip_ref[], uint start_index, uint stop_index, uint width);
 };
 
-void farmer(int id, client interface worker_farmer wf_i[workers], static const uint workers) {
+void farmer(int id, client interface worker_farmer_if worker_farmer[workers], static const uint workers) {
     printf("[%i] Farmer init\n", id);
     // TODO read in from image
     const int width = 64;
@@ -66,7 +66,7 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
             memcpy(&(worker_strips[worker_id][bottom_overlap_row]), &(worker_strips[next_worker_id][first_working_row]), ints_in_row * sizeof(int));
 
 
-            //TODO wf_i[worker_id].tick(worker_strips[worker_id], first_working_row, last_working_row + ints_in_row, width);
+            //TODO worker_farmer[worker_id].tick(worker_strips[worker_id], first_working_row, last_working_row + ints_in_row, width);
             printf("%i\n", worker_id);
             print_bits_array(worker_strips[worker_id], MAX_INTS_IN_STRIP);
         }
@@ -74,7 +74,7 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
         int workers_done = workers;
         while (!workers_done) { // TODO: possible deadlock?
             select {
-                case wf_i[int worker_id].tock():
+                case worker_farmer[int worker_id].tock():
                     workers_done--;
                     break;
             }
@@ -83,32 +83,32 @@ void farmer(int id, client interface worker_farmer wf_i[workers], static const u
     }
 }
 
-void worker(int id, server interface worker_farmer wf_i) {
+void worker(int id, server interface worker_farmer_if worker_farmer) {
     printf("[%i] Worker init\n", id);
 
     // Work on each tick
     // while (1) {
     //     select {
-    //         case wf_i.tick(unsigned int* movable strip_ref[], uint start_index, uint stop_index, uint width):
+    //         case worker_farmer.tick(unsigned int* movable strip_ref[], uint start_index, uint stop_index, uint width):
     //             // TODO: work
     //             printf("Compute between index: %i and %i\n", start_index, stop_index);
     //             printf("%i%i%i\n", get_bit(strip_ref, 0), get_bit(strip_ref, 1), get_bit(strip_ref, 2));
     //             printf("[%i] tick done\n", id);
-    //             wf_i.tock();
+    //             worker_farmer.tock();
     //             break;
     //     }
     // }
 }
 
 int main(void) {
-    interface worker_farmer wf_i[4];
+    interface worker_farmer_if worker_farmer[4];
 
     par {
-        on tile[0] : farmer(9, wf_i, 4);
-        on tile[0] : worker(0, wf_i[0]);
-        on tile[0] : worker(1, wf_i[1]);
-        on tile[0] : worker(2, wf_i[2]);
-        on tile[0] : worker(3, wf_i[3]);
+        on tile[0] : farmer(9, worker_farmer, 4);
+        on tile[0] : worker(0, worker_farmer[0]);
+        on tile[0] : worker(1, worker_farmer[1]);
+        on tile[0] : worker(2, worker_farmer[2]);
+        on tile[0] : worker(3, worker_farmer[3]);
     }
     return 0;
 }

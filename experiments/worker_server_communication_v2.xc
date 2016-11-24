@@ -2,13 +2,13 @@
 #include <stdio.h>
 
 // Define interface
-interface worker_farmer {
+interface worker_farmer_if {
     [[guarded]] [[clears_notification]] void init_strip(int start_index, int number_of_cells, int width, int height);
     [[notification]] slave void tock();
     [[guarded]] void tick(int strip_ref[], int start_index, int number_of_cells, int width, int height);
 };
 
-void farmer(int id, client interface worker_farmer wf_i[available_workers], static const uint available_workers) {
+void farmer(int id, client interface worker_farmer_if worker_farmer[available_workers], static const uint available_workers) {
     printf("[%i] Farmer init\n", id);
     const int width = 32;
     const int height = 4;
@@ -27,14 +27,14 @@ void farmer(int id, client interface worker_farmer wf_i[available_workers], stat
 
         if (!pause) {
             for (int worker_id=0; worker_id < available_workers; worker_id++) {
-                wf_i[worker_id].tick(worker_strips[worker_id], start_index, number_of_cells, width, height);
+                worker_farmer[worker_id].tick(worker_strips[worker_id], start_index, number_of_cells, width, height);
             }
         }
 
         int workers_done = available_workers;
         do {
             select {
-                case wf_i[int worker_id].tock():
+                case worker_farmer[int worker_id].tock():
                     workers_done--; // This worker is done! :)
                     break;
             }
@@ -43,30 +43,30 @@ void farmer(int id, client interface worker_farmer wf_i[available_workers], stat
 
 }
 
-void worker(int id, server interface worker_farmer wf_i) {
+void worker(int id, server interface worker_farmer_if worker_farmer) {
     printf("[%i] Worker init\n", id);
 
     // Work on each tick
     while (1) {
         select {
-            case wf_i.tick(int ref[], int start_index, int number_of_cells, int width, int height):
+            case worker_farmer.tick(int ref[], int start_index, int number_of_cells, int width, int height):
                 // TODO: work
                 printf("[%i] tick done\n", id);
-                wf_i.tock();
+                worker_farmer.tock();
                 break;
         }
     }
 }
 
 int main(void) {
-    interface worker_farmer wf_i[4];
+    interface worker_farmer_if worker_farmer[4];
 
     par {
-        on tile[0] : farmer(9, wf_i, 4);
-        on tile[0] : worker(0, wf_i[0]);
-        on tile[0] : worker(1, wf_i[1]);
-        on tile[0] : worker(2, wf_i[2]);
-        on tile[0] : worker(3, wf_i[3]);
+        on tile[0] : farmer(9, worker_farmer, 4);
+        on tile[0] : worker(0, worker_farmer[0]);
+        on tile[0] : worker(1, worker_farmer[1]);
+        on tile[0] : worker(2, worker_farmer[2]);
+        on tile[0] : worker(3, worker_farmer[3]);
     }
     return 0;
 }

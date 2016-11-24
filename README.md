@@ -13,15 +13,15 @@ https://docs.google.com/document/d/1_RFqflIu9wtYERPC07vNm1GZtXkS0ZIZHcadgs6FLnY/
 
 Farmer (also controls LEDs):
 
-* orientation_control (foc)
+* orientation_control (farmer_orientation)
   * < pause/play
-* read_image (rif)
+* read_image (reader_farmer)
   * > start_read [[notification]]
   * < data, read_done
 * write_image (wif)
   * > data, start_write
   * < write_done
-* button_control (fbc)
+* button_control (farmer_button)
   * < start_read, start_write
 * worker (fw)
   * > data, tick
@@ -36,13 +36,13 @@ int buffer_data[strip_size * width / INT_SIZE];
 // strip size
 
 switch {
-    case foc.pause(int x):
+    case farmer_orientation.pause(int x):
         pause = x;
         break;
-    case fbc.start_read():
+    case farmer_button.start_read():
         fir.start_read(); // this is a [[notification]]
         break;
-    case fbc.start_write():
+    case farmer_button.start_write():
         // TODO light LED
         while data {
             wif.write(data);

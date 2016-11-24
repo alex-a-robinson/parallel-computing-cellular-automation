@@ -9,12 +9,13 @@
 #include "gpio.h"
 #include "i2c.h"
 
+
+#include "logic/farmer_interfaces.h" //needs to be first include
 #include "image_processing/image_processing.h"
 #include "controls/controls.h"
 #include "constants.h"
 #include "utils/debug.h"
 #include "logic/strip_farmer.h"
-#include "logic/farmer_interfaces.h"
 
 // Interface ports to orientation
 on tile[0] : port p_scl = XS1_PORT_1E;
@@ -35,12 +36,12 @@ int main(void) {
     input_gpio_if i_explorer_buttons[2];
     output_gpio_if i_explorer_leds[4]; // 0 = GREEN, 1 = RGB_BLUE, 2 = RGB_GREEN, 3 = RGB_RED
 
-    interface worker_farmer wf_i[MAX_WORKERS];
+    interface worker_farmer_if worker_farmer[MAX_WORKERS];
 
-    interface farmer_button_control fbc;
-    interface read_image_farmer rif;
-    interface farmer_write_image fwi;
-    interface farmer_orientation_control foc;
+    interface farmer_button_if farmer_button;
+    interface reader_farmer_if reader_farmer;
+    interface farmer_writer_if farmer_writer;
+    interface farmer_orientation_if farmer_orientation;
 
     par {
         // input/output cores
@@ -49,19 +50,19 @@ int main(void) {
         on tile[0] : output_gpio(i_explorer_leds, 4, explorer_leds, null); // provides led output
 
         // Control cores
-        on tile[0] : orientation_control(i2c[0], foc, i_explorer_leds[3]);
-        on tile[0] : button_control(fbc, i_explorer_buttons[0], i_explorer_buttons[1]);
+        on tile[0] : orientation_control(i2c[0], farmer_orientation, i_explorer_leds[3]);
+        on tile[0] : button_control(farmer_button, i_explorer_buttons[0], i_explorer_buttons[1]);
 
         //NOTE: combine onto single core later?
-        on tile[0] : image_reader("images/test.pgm", rif, i_explorer_leds[2]);
-        on tile[0] : image_writer("images/testout.pgm", fwi, i_explorer_leds[1]);
+        on tile[0] : image_reader("images/test.pgm", reader_farmer, i_explorer_leds[2]);
+        on tile[0] : image_writer("images/testout.pgm", farmer_writer, i_explorer_leds[1]);
 
         // Farmer
-        on tile[1] : farmer(9, wf_i, MAX_WORKERS, fbc, i_explorer_leds[0]);
+        on tile[1] : farmer(9, worker_farmer, MAX_WORKERS, farmer_button, i_explorer_leds[0]);
 
         // Workers
         par (int i=0; i < MAX_WORKERS; i++) {
-            on tile[1] : worker(i, wf_i[i]);
+            on tile[1] : worker(i, worker_farmer[i]);
         }
     }
 

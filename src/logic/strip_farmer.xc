@@ -70,8 +70,8 @@ void worker(int id, server interface worker_farmer_if workers_farmer) {
 
 void farmer(int id, client interface worker_farmer_if workers_farmer[workers], static const unsigned int workers,
             server interface farmer_button_if farmer_buttons, client interface output_gpio_if led,
-            server interface farmer_orientation_if farmer_orientation, client interface reader_farmer_if reader_farmer,
-            server interface farmer_writer_if farmer_writer) {
+            server interface farmer_orientation_if farmer_orientation, server interface reader_farmer_if reader_farmer,
+            client interface farmer_writer_if farmer_writer) {
     LOG(IFO, "[%i] Farmer init\n", id);
     // TODO read in from image
     const int width = 32;

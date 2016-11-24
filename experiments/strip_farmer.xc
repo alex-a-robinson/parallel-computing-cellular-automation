@@ -15,13 +15,13 @@ unsigned int get_bit(unsigned int array[], int cell_index) {
 }
 
 // Finds neighbours, sums and returns new value
-uint calc_cell(uint index, uint strip[], uint width, uint ints_in_row) {
-	uint sum = 0;// TODO: Optimise with static indexs
+unsigned int calc_cell(unsigned int index, unsigned int strip[], unsigned int width, unsigned int ints_in_row) {
+	unsigned int sum = 0;// TODO: Optimise with static indexs
 	for (int r=-1; r < 2; r++) {
-        uint padded_width = ints_in_row * INT_SIZE;
-		uint row_scaler = r * padded_width + (index/padded_width)*padded_width;
+        unsigned int padded_width = ints_in_row * INT_SIZE;
+		unsigned int row_scaler = r * padded_width + (index/padded_width)*padded_width;
 		for (int c=-1; c < 2; c++) {
-			uint neighbour_index = ((index + c) % padded_width) % width + row_scaler;
+			unsigned int neighbour_index = ((index + c) % padded_width) % width + row_scaler;
             //printf(" %i: %i-%i  ", index, row_scaler, neighbour_index);
 			if (!(r == 0 && c == 0)) {
 				sum += get_bit(strip, neighbour_index);
@@ -51,10 +51,10 @@ int ceil_div(int a, int b) {
 interface worker_farmer_if {
     [[guarded]] [[clears_notification]] void init_strip(int start_index, int number_of_cells, int width, int height);
     [[notification]] slave void tock();
-    [[guarded]] void tick(unsigned int strip_ref[], uint first_working_row, uint last_working_row, uint widths, uint ints_in_row);
+    [[guarded]] void tick(unsigned int strip_ref[], unsigned int first_working_row, unsigned int last_working_row, unsigned int widths, unsigned int ints_in_row);
 };
 
-void farmer(int id, client interface worker_farmer_if workers_farmer[workers], static const uint workers) {
+void farmer(int id, client interface worker_farmer_if workers_farmer[workers], static const unsigned int workers) {
     //setvbuf(stdout, NULL, _IONBF, 0);
     printf("[%i] Farmer init\n", id);
     // TODO read in from image
@@ -72,7 +72,7 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
     //TODO add availabile_workers when different
 
 
-    uint worker_strips[workers][MAX_INTS_IN_STRIP]={{0}};
+    unsigned int worker_strips[workers][MAX_INTS_IN_STRIP]={{0}};
 
     //NOTE arrays used for testing, will be image input later
 
@@ -141,21 +141,21 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
 
 void worker(int id, server interface worker_farmer_if workers_farmer) {
     printf("[%i] Worker init\n", id);
-    uint old_strip[MAX_INTS_IN_STRIP];
+    unsigned int old_strip[MAX_INTS_IN_STRIP];
 
     // Work on each tick
     while (1) {
         select {
-            case workers_farmer.tick(unsigned int strip_ref[], uint first_working_row, uint last_working_row, uint width, uint ints_in_row):
+            case workers_farmer.tick(unsigned int strip_ref[], unsigned int first_working_row, unsigned int last_working_row, unsigned int width, unsigned int ints_in_row):
 
 
                 memcpy(old_strip, strip_ref, MAX_INTS_IN_STRIP * sizeof(int));
                 //print_bits_array(old_strip, MAX_INTS_IN_STRIP);
 
                 for (int int_index=first_working_row; int_index <= last_working_row; int_index++) {
-                    uint bit_array[INT_SIZE]={0}; //NOTE optimize by memset'ing the same memory?
+                    unsigned int bit_array[INT_SIZE]={0}; //NOTE optimize by memset'ing the same memory?
 
-                    uint end_of_int = ((width % INT_SIZE) && (int_index % ints_in_row == ints_in_row-1)) ? width % INT_SIZE : INT_SIZE;
+                    unsigned int end_of_int = ((width % INT_SIZE) && (int_index % ints_in_row == ints_in_row-1)) ? width % INT_SIZE : INT_SIZE;
                     //printf("\n %i %i %i \n", end_of_int, int_index, ints_in_row);
                     for (int bit_index=0; bit_index < end_of_int; bit_index++) {
                         int cell_index = int_index*INT_SIZE + bit_index;

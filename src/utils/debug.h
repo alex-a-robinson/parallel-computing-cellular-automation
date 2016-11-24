@@ -9,14 +9,14 @@
 
 #define DEBUG_LEVEL (5)
 
-#define LOG(level, ...)                                                        \
-    do {                                                                       \
-        if (level <= DEBUG_LEVEL) {                                            \
-            fprintf(stderr, "%s:%d:", __FILE__, __LINE__);                     \
-            fprintf(stderr, __VA_ARGS__);                                      \
-            fprintf(stderr, "\n");                                             \
-            fflush(stderr);                                                    \
-        }                                                                      \
+#define LOG(level, ...)                                                                                                                                                                                \
+    do {                                                                                                                                                                                               \
+        if (level <= DEBUG_LEVEL) {                                                                                                                                                                    \
+            fprintf(stderr, "%s:%d:", __FILE__, __LINE__);                                                                                                                                             \
+            fprintf(stderr, __VA_ARGS__);                                                                                                                                                              \
+            fprintf(stderr, "\n");                                                                                                                                                                     \
+            fflush(stderr);                                                                                                                                                                            \
+        }                                                                                                                                                                                              \
     } while (0)
 
 /*

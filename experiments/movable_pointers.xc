@@ -13,12 +13,12 @@ int ceil_div(int a, int b) {
 
 // Define interface
 interface worker_farmer_if {
-    [[guarded]] [[clears_notification]] uint * movable get_ref();
+    [[guarded]] [[clears_notification]] unsigned int * movable get_ref();
     [[notification]] slave void tock();
-    [[guarded]] void tick(uint* movable strip_ref, uint start_index, uint stop_index, uint width);
+    [[guarded]] void tick(unsigned int* movable strip_ref, unsigned int start_index, unsigned int stop_index, unsigned int width);
 };
 
-void farmer(int id, client interface worker_farmer_if workers_farmer[workers], static const uint workers) {
+void farmer(int id, client interface worker_farmer_if workers_farmer[workers], static const unsigned int workers) {
     printf("[%i] Farmer init\n", id);
     // TODO read in from image
     const int width = 64;
@@ -40,21 +40,21 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
 
     #define MAX_INTS_IN_STRIP  10 // TODO Optimise for memory
 
-    uint * movable worker_strips[workers];
+    unsigned int * movable worker_strips[workers];
 
 //TODO: needs to malloc somehow and have array of movable pointers.
         //if memory allocated seperately, will the memory be in loads of ifferent physical locations?
         // will that havae any actual difference on speed?
 
-    //uint * movable temp_ref; //keep scope?
+    //unsigned int * movable temp_ref; //keep scope?
     for (int worker_id=0; worker_id<workers; worker_id++) {
-        static uint current_strip[MAX_INTS_IN_STRIP]; //TODO: check for memory leak here
+        static unsigned int current_strip[MAX_INTS_IN_STRIP]; //TODO: check for memory leak here
         for (int j=0; j<ints_in_strip; j++) {
             //TODO: replace these with incoming image channel
             current_strip[j] = 0;
             if (worker_id == 1) current_strip[j] = 0x55555555;
             if (worker_id == 3) current_strip[j] = 0xaaaaaaaa;
-        static uint * movable temp_ref = current_strip; //TODO: dsicuss this 0
+        static unsigned int * movable temp_ref = current_strip; //TODO: dsicuss this 0
         worker_strips[worker_id] = move(temp_ref);
         }
 
@@ -86,7 +86,7 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
 
             memcpy(&(worker_strips[worker_id][bottom_overlap_row]), &(worker_strips[next_worker_id][first_working_row]), ints_in_row * sizeof(int));
 
-            uint * movable strip_ref = &worker_strips[worker_id][0];
+            unsigned int * movable strip_ref = &worker_strips[worker_id][0];
             workers_farmer[worker_id].tick(move(strip_ref), first_working_row, last_working_row + ints_in_row, width);
 
         }
@@ -95,7 +95,7 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
         while (!workers_done) { // TODO: possible deadlock?
             select {
                 case workers_farmer[int worker_id].tock():
-                    uint *movable ref = workers_farmer[worker_id].get_ref();
+                    unsigned int *movable ref = workers_farmer[worker_id].get_ref();
 
                     printf("pointer: %i\n", ref);
                     //print_bits_array(ref, MAX_INTS_IN_STRIP);
@@ -111,20 +111,20 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
 
 void worker(int id, server interface worker_farmer_if workers_farmer) {
     printf("[%i] Worker init\n", id);
-    uint *movable ref;
+    unsigned int *movable ref;
     //Work on each tick
     while (1) {
         select {
-            case workers_farmer.tick(uint *movable strip_ref, uint start_index, uint stop_index, uint width):
+            case workers_farmer.tick(unsigned int *movable strip_ref, unsigned int start_index, unsigned int stop_index, unsigned int width):
                 // TODO: work
                 ref = move(strip_ref);
-                //uint * movable strip = move(strip_ref);
+                //unsigned int * movable strip = move(strip_ref);
                 printf("Compute between index: %i and %i\n", start_index, stop_index);
                 //printf("%i%i%i\n", get_bit(strip, 0), get_bit(strip, 1), get_bit(strip, 2));
                 printf("[%i] tick done\n", id);
                 workers_farmer.tock();
                 break;
-            case workers_farmer.get_ref() -> uint *movable r:
+            case workers_farmer.get_ref() -> unsigned int *movable r:
                 r = move(ref);
                 break;
         }

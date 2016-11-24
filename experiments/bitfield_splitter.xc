@@ -14,10 +14,10 @@ int ceil_div(int a, int b) {
 interface worker_farmer_if {
     [[guarded]] [[clears_notification]] void init_strip(int start_index, int number_of_cells, int width, int height);
     [[notification]] slave void tock();
-    [[guarded]] void tick(unsigned int* movable strip_ref[], uint start_index, uint stop_index, uint width);
+    [[guarded]] void tick(unsigned int* movable strip_ref[], unsigned int start_index, unsigned int stop_index, unsigned int width);
 };
 
-void farmer(int id, client interface worker_farmer_if workers_farmer[workers], static const uint workers) {
+void farmer(int id, client interface worker_farmer_if workers_farmer[workers], static const unsigned int workers) {
     printf("[%i] Farmer init\n", id);
     // TODO read in from image
     const int width = 64;
@@ -39,7 +39,7 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
     int bottom_overlap_row = ints_in_row * (working_strip_height + 1);
 
     #define MAX_INTS_IN_STRIP  10 // TODO Optimise for memory
-    uint worker_strips[workers][MAX_INTS_IN_STRIP];
+    unsigned int worker_strips[workers][MAX_INTS_IN_STRIP];
 
     //NOTE arrays used for testing, will be image input later
     for (int worker_id=0; worker_id<workers; worker_id++) {
@@ -89,7 +89,7 @@ void worker(int id, server interface worker_farmer_if workers_farmer) {
     // Work on each tick
     // while (1) {
     //     select {
-    //         case workers_farmer.tick(unsigned int* movable strip_ref[], uint start_index, uint stop_index, uint width):
+    //         case workers_farmer.tick(unsigned int* movable strip_ref[], unsigned int start_index, unsigned int stop_index, unsigned int width):
     //             // TODO: work
     //             printf("Compute between index: %i and %i\n", start_index, stop_index);
     //             printf("%i%i%i\n", get_bit(strip_ref, 0), get_bit(strip_ref, 1), get_bit(strip_ref, 2));

@@ -9,17 +9,13 @@
 #include "logic/farmer_interfaces.h"
 
 // Initialise and  read orientation, send first tilt event to channel
-void orientation_control(client interface i2c_master_if i2c,
-                         client interface farmer_orientation_if
-                             farmer_orientation,
-                         client output_gpio_if led) {
+void orientation_control(client interface i2c_master_if i2c, client interface farmer_orientation_if farmer_orientation, client output_gpio_if led) {
     i2c_regop_res_t result;
     char status_data = 0;
     int tilted = 0;
 
     // Configure FXOS8700EQ
-    result =
-        i2c.write_reg(FXOS8700EQ_I2C_ADDR, FXOS8700EQ_XYZ_DATA_CFG_REG, 0x01);
+    result = i2c.write_reg(FXOS8700EQ_I2C_ADDR, FXOS8700EQ_XYZ_DATA_CFG_REG, 0x01);
     if (result != I2C_REGOP_SUCCESS) {
         printf("I2C write reg failed\n");
     }
@@ -34,8 +30,7 @@ void orientation_control(client interface i2c_master_if i2c,
     while (1) {
         // Check until new orientation data is available
         do {
-            status_data =
-                i2c.read_reg(FXOS8700EQ_I2C_ADDR, FXOS8700EQ_DR_STATUS, result);
+            status_data = i2c.read_reg(FXOS8700EQ_I2C_ADDR, FXOS8700EQ_DR_STATUS, result);
         } while (!status_data & 0x08);
 
         // Get new x-axis tilt value
@@ -53,9 +48,7 @@ void orientation_control(client interface i2c_master_if i2c,
     }
 }
 
-void button_control(client interface farmer_button_if farmer_button,
-                    client input_gpio_if button_1,
-                    client input_gpio_if button_2) {
+void button_control(client interface farmer_button_if farmer_buttons, client input_gpio_if button_1, client input_gpio_if button_2) {
     button_1.event_when_pins_eq(0);
     button_2.event_when_pins_eq(0);
 
@@ -63,17 +56,20 @@ void button_control(client interface farmer_button_if farmer_button,
         select {
         case button_1.event(): // Start image read
             if (button_1.input() == 0) {
-                farmer_button.start_read();
+                farmer_buttons.start_read();
                 button_1.event_when_pins_eq(1);
             } else {
                 button_1.event_when_pins_eq(0);
             }
+            break;
         case button_2.event(): // Start image write
             if (button_2.input() == 0) {
-                farmer_button.start_write();
+                farmer_buttons.start_write();
                 button_2.event_when_pins_eq(1);
             } else {
                 button_2.event_when_pins_eq(0);
             }
+            break;
         }
     }
+}

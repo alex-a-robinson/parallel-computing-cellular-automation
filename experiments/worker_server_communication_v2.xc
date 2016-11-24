@@ -8,7 +8,7 @@ interface worker_farmer_if {
     [[guarded]] void tick(int strip_ref[], int start_index, int number_of_cells, int width, int height);
 };
 
-void farmer(int id, client interface worker_farmer_if workers_farmer[available_workers], static const uint available_workers) {
+void farmer(int id, client interface worker_farmer_if workers_farmer[available_workers], static const unsigned int available_workers) {
     printf("[%i] Farmer init\n", id);
     const int width = 32;
     const int height = 4;

@@ -12,7 +12,7 @@
 #include "constants.h"
 #include "controls/controls.h"
 #include "image_processing/image_processing.h"
-#include "logic/farmer_interfaces.h" //needs to be first include
+#include "logic/farmer_interfaces.h"
 #include "logic/strip_farmer.h"
 #include "utils/debug.h"
 
@@ -38,7 +38,7 @@ int main(void) {
 
     interface worker_farmer_if workers_farmer[MAX_WORKERS];
 
-    interface farmer_button_if farmer_button;
+    interface farmer_button_if farmer_buttons;
     interface reader_farmer_if reader_farmer;
     interface farmer_writer_if farmer_writer;
     interface farmer_orientation_if farmer_orientation;
@@ -56,7 +56,7 @@ int main(void) {
         // Control cores
         on tile[0] : orientation_control(i2c[0], farmer_orientation,
                                          i_explorer_leds[3]);
-        on tile[0] : button_control(farmer_button, i_explorer_buttons[0],
+        on tile[0] : button_control(farmer_buttons, i_explorer_buttons[0],
                                     i_explorer_buttons[1]);
 
         // NOTE: combine onto single core later?
@@ -66,7 +66,7 @@ int main(void) {
                                   i_explorer_leds[1]);
 
         // Farmer
-        on tile[1] : farmer(9, workers_farmer, MAX_WORKERS, farmer_button,
+        on tile[1] : farmer(9, workers_farmer, MAX_WORKERS, farmer_buttons,
                             i_explorer_leds[0]);
 
         // Workers

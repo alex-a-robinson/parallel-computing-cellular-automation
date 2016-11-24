@@ -5,8 +5,7 @@ FILE *_OUTFP = NULL;
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 // Line-wise pgm in:
-{ int, int }
-_openinpgm(char fname[], int width, int height) {
+int _openinpgm(char fname[], int max_width, int max_height, unsigned int dimensions[2]) {
     char str[64];
     int inwidth, inheight;
 
@@ -14,7 +13,7 @@ _openinpgm(char fname[], int width, int height) {
 
     if (_INFP == NULL) {
         printf("Could not open %s.\n", fname);
-        return {-1, -1};
+        return 1;
     }
 
     // Strip off header
@@ -22,13 +21,12 @@ _openinpgm(char fname[], int width, int height) {
     fgets(str, 64, _INFP); // width and height
     sscanf(str, "%d%d", &inwidth, &inheight);
 
-    if ((inwidth > width) || (inheight > height)) {
-        printf("Input image size(%dx%d) > %dx%d or trouble reading header\n",
-               inwidth, inheight, width, height);
-        return {-1, -1};
+    if ((inwidth > max_width) || (inheight > max_height)) {
+        printf("Input image size(%dx%d) > %dx%d or trouble reading header\n", inwidth, inheight, max_width, max_height);
+        return 1;
     }
     fgets(str, 64, _INFP); // bit depth, must be 255
-    return {width, height};
+    return 0;
 }
 
 int _readinline(unsigned char line[], int width) {

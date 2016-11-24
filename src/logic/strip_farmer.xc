@@ -13,15 +13,13 @@
 #include "utils.xc" // DEBUGGING
 
 // Finds neighbours, sums and returns new value
-uint calc_cell(uint index, uint strip[], uint width, uint ints_in_row) {
-    uint sum = 0; // TODO: Optimise with static indexs
+unsigned int calc_cell(unsigned int index, unsigned int strip[], unsigned int width, unsigned int ints_in_row) {
+    unsigned int sum = 0; // TODO: Optimise with static indexs
     for (int r = -1; r < 2; r++) {
-        uint padded_width = ints_in_row * INT_SIZE;
-        uint row_scaler =
-            r * padded_width + (index / padded_width) * padded_width;
+        unsigned int padded_width = ints_in_row * INT_SIZE;
+        unsigned int row_scaler = r * padded_width + (index / padded_width) * padded_width;
         for (int c = -1; c < 2; c++) {
-            uint neighbour_index =
-                ((index + c) % padded_width) % width + row_scaler;
+            unsigned int neighbour_index = ((index + c) % padded_width) % width + row_scaler;
             if (!(r == 0 && c == 0)) {
                 sum += get_bit(strip, neighbour_index);
             }
@@ -43,29 +41,21 @@ uint calc_cell(uint index, uint strip[], uint width, uint ints_in_row) {
 
 void worker(int id, server interface worker_farmer_if workers_farmer) {
     LOG(IFO, "[%i] Worker init\n", id);
-    uint old_strip[MAX_INTS_IN_STRIP];
+    unsigned int old_strip[MAX_INTS_IN_STRIP];
 
     while (1) {
         select {
-        case workers_farmer.tick(unsigned int strip_ref[],
-                                 uint first_working_row, uint last_working_row,
-                                 uint width, uint ints_in_row):
+        case workers_farmer.tick(unsigned int strip_ref[], unsigned int first_working_row, unsigned int last_working_row, unsigned int width, unsigned int ints_in_row):
             memcpy(old_strip, strip_ref, MAX_INTS_IN_STRIP * sizeof(int));
 
-            for (int int_index = first_working_row;
-                 int_index <= last_working_row; int_index++) {
-                uint bit_array[INT_SIZE] = {
-                    0}; // TODO take init outside, reset each loop
+            for (int int_index = first_working_row; int_index <= last_working_row; int_index++) {
+                unsigned int bit_array[INT_SIZE] = {0}; // TODO take init outside, reset each loop
 
-                uint end_of_int = ((width % INT_SIZE) &&
-                                   (int_index % ints_in_row == ints_in_row - 1))
-                                      ? width % INT_SIZE
-                                      : INT_SIZE;
+                unsigned int end_of_int = ((width % INT_SIZE) && (int_index % ints_in_row == ints_in_row - 1)) ? width % INT_SIZE : INT_SIZE;
                 for (int bit_index = 0; bit_index < end_of_int; bit_index++) {
                     int cell_index = int_index * INT_SIZE + bit_index;
 
-                    bit_array[bit_index] =
-                        calc_cell(cell_index, old_strip, width, ints_in_row);
+                    bit_array[bit_index] = calc_cell(cell_index, old_strip, width, ints_in_row);
                 }
                 strip_ref[int_index] = array_to_bits(bit_array, INT_SIZE);
             }
@@ -76,9 +66,7 @@ void worker(int id, server interface worker_farmer_if workers_farmer) {
     }
 }
 
-void farmer(int id, client interface worker_farmer_if workers_farmer[workers],
-            static const uint workers,
-            server interface farmer_button_if farmer_button,
+void farmer(int id, client interface worker_farmer_if workers_farmer[workers], static const unsigned int workers, server interface farmer_button_if farmer_buttons,
             client interface output_gpio_if led) {
     LOG(IFO, "[%i] Farmer init\n", id);
     // TODO read in from image
@@ -91,12 +79,11 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers],
         LOG(ERR, "Error: incompatible height to workers ratio\n\n");
         return;
     }
-    int working_strip_height =
-        height / workers; // TODO put in variable length strips?
+    int working_strip_height = height / workers; // TODO put in variable length strips?
     int ints_in_row = ceil_div(width, INT_SIZE);
     // TODO add availabile_workers when different
 
-    uint worker_strips[workers][MAX_INTS_IN_STRIP] = {{0}};
+    unsigned int worker_strips[workers][MAX_INTS_IN_STRIP] = {{0}};
 
     // TODO Read in from interface
 
@@ -104,8 +91,7 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers],
     while (!pause) {
 
         // system("clear"); DEBUG
-        print_strips_as_grid(worker_strips, working_strip_height, workers,
-                             ints_in_row);
+        print_strips_as_grid(worker_strips, working_strip_height, workers, ints_in_row);
 
         // TODO: calculate strip stats
 
@@ -118,18 +104,12 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers],
         for (int worker_id = 0; worker_id < workers; worker_id++) {
             int previous_worker_id = (worker_id - 1) % workers;
             int next_worker_id = (worker_id + 1) % workers;
-            memcpy(&(worker_strips[worker_id][top_overlap_row]),
-                   &(worker_strips[previous_worker_id][last_working_row]),
-                   ints_in_row * sizeof(int));
-            memcpy(&(worker_strips[worker_id][bottom_overlap_row]),
-                   &(worker_strips[next_worker_id][first_working_row]),
-                   ints_in_row * sizeof(int));
+            memcpy(&(worker_strips[worker_id][top_overlap_row]), &(worker_strips[previous_worker_id][last_working_row]), ints_in_row * sizeof(int));
+            memcpy(&(worker_strips[worker_id][bottom_overlap_row]), &(worker_strips[next_worker_id][first_working_row]), ints_in_row * sizeof(int));
         }
 
         for (int worker_id = 0; worker_id < workers; worker_id++) {
-            workers_farmer[worker_id].tick(worker_strips[worker_id],
-                                           first_working_row, last_working_row,
-                                           width, ints_in_row);
+            workers_farmer[worker_id].tick(worker_strips[worker_id], first_working_row, last_working_row, width, ints_in_row);
         }
 
         int workers_done = workers;

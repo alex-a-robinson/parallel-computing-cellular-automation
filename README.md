@@ -21,7 +21,7 @@ Farmer (also controls LEDs):
 * write_image (wif)
   * > data, start_write
   * < write_done
-* button_control (farmer_button)
+* button_control (farmer_buttons)
   * < start_read, start_write
 * worker (fw)
   * > data, tick
@@ -35,14 +35,14 @@ int buffer_data[strip_size * width / INT_SIZE];
 // Need to get width/height from image to calc
 // strip size
 
-switch {
+select {
     case farmer_orientation.pause(int x):
         pause = x;
         break;
-    case farmer_button.start_read():
+    case farmer_buttons.start_read():
         fir.start_read(); // this is a [[notification]]
         break;
-    case farmer_button.start_write():
+    case farmer_buttons.start_write():
         // TODO light LED
         while data {
             wif.write(data);

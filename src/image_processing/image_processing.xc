@@ -86,7 +86,7 @@ void image_writer(char filename[], server interface farmer_writer_if farmer_writ
             break;
 
         case farmer_writer.end_of_data():
-            LOG(DBG, "farmer_writer.end_of_data()\n");
+            LOG(IFO, "farmer_writer.end_of_data()\n");
             _closeoutpgm();
             led.output(0);
             break;

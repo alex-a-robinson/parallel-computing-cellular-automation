@@ -84,19 +84,19 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
     while (1) {
 
         select {
-        case read_done => farmer_orientation.pause():
-            LOG(DBG, "farmer_orientation.pause()\n");
+        case farmer_orientation.pause():
+            LOG(IFO, "farmer_orientation.pause()\n");
             play = 0;
             // TODO: calculate strip stats
             break;
-        case read_done => farmer_orientation.play():
-            LOG(DBG, "farmer_orientation.play()\n");
+        case farmer_orientation.play():
+            LOG(IFO, "farmer_orientation.play()\n");
             play = 1;
             break;
 
         // Start Read/Write from farmer_buttons
         case farmer_buttons.start_read():
-            LOG(DBG, "farmer_buttons.start_read()\n");
+            LOG(IFO, "farmer_buttons.start_read()\n");
             reader_farmer.start_read();
             // Read in entire image
             while (!read_done) {
@@ -124,18 +124,18 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
                     int strip_index = row_index / working_strip_height;
                     int row_in_strip = (row_index % working_strip_height) + 1;
                     worker_strips[strip_index][row_in_strip*ints_in_row + int_index] = data;
-                    printf("- strip_index: %i, row_in_strip: %i, int_in_strip: %i\n", strip_index, row_in_strip, int_index);
                     break;
                 case reader_farmer.read_done():
-                    LOG(DBG, "reader_farmer.read_done()\n");
+                    LOG(IFO, "reader_farmer.read_done()\n");
                     read_done = 1;
+                    play = 1;
                     break;
                 }
             }
             break; // start_read
 
         case read_done => farmer_buttons.start_write():
-            LOG(DBG, "farmer_buttons.start_write()\n");
+            LOG(IFO, "farmer_buttons.start_write()\n");
             farmer_writer.header(width, height);
 
             // For each worker; for each int in working strip; when ready send data
@@ -154,11 +154,13 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
             }
             farmer_writer.end_of_data();
             break; // start_write
+        default:
+            break;// for if no buttons or orientation changed since last check
         }
 
-        while (play) {
+        if (read_done && play) {
             // system("clear"); DEBUG
-            print_strips_as_grid(worker_strips, working_strip_height, workers, ints_in_row);
+            if (DEBUG_LEVEL==DBG) print_strips_as_grid(worker_strips, working_strip_height, workers, ints_in_row);
 
             // update neighboring overlaps
             for (int worker_id = 0; worker_id < workers; worker_id++) {
@@ -185,6 +187,7 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
                 }
             }
             tick++;
+            LOG(IFO, ".");
             led.output(tick % 2); // Blink LED, might not work
         }
     }

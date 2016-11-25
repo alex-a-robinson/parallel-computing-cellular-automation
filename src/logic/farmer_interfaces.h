@@ -29,8 +29,8 @@ interface farmer_writer_if { // BLUE LED
 };
 
 interface farmer_orientation_if { // RED LED
-    [[guarded]] void pause();
-    [[guarded]] void play();
+    void pause();
+    void play();
 };
 
 #endif

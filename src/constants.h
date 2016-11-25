@@ -4,7 +4,7 @@
 // Type Constants
 //const static int INT_SIZE = sizeof(unsigned int)*8; //TODO test
 #define INT_SIZE 32
-#define MAX_INTS_IN_STRIP  4 // TODO Optimise for memory
+#define MAX_INTS_IN_STRIP  2080 // TODO Optimise for memory, 512x512 grid for 4 workers is 2080
 #define MAX_WORKERS 4
 
 // Image Constants

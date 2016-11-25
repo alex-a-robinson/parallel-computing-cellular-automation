@@ -7,10 +7,12 @@
 #include "constants.h"
 #include "controls.h"
 #include "logic/farmer_interfaces.h"
+#include "utils/debug.h"
 
 // Initialise and  read orientation, send first tilt event to channel
 void orientation_control(client interface i2c_master_if i2c, client interface farmer_orientation_if farmer_orientation,
                          client output_gpio_if led) {
+    LOG(IFO, "[x] Orientation_control init\n");
     i2c_regop_res_t result;
     char status_data = 0;
     int tilted = 0;
@@ -51,12 +53,14 @@ void orientation_control(client interface i2c_master_if i2c, client interface fa
 
 void button_control(client interface farmer_button_if farmer_buttons, client input_gpio_if button_1,
                     client input_gpio_if button_2) {
-    button_1.event_when_pins_eq(0);
+    LOG(IFO, "[x] button_control init\n");
+    button_1.event_when_pins_eq(0); // TODO flip in simulation
     button_2.event_when_pins_eq(0);
 
     while (1) {
         select {
         case button_1.event(): // Start image read
+            LOG(DBG, "button_1.event()\n");
             if (button_1.input() == 0) {
                 farmer_buttons.start_read();
                 button_1.event_when_pins_eq(1);
@@ -65,6 +69,7 @@ void button_control(client interface farmer_button_if farmer_buttons, client inp
             }
             break;
         case button_2.event(): // Start image write
+            LOG(DBG, "button_2.event()\n");
             if (button_2.input() == 0) {
                 farmer_buttons.start_write();
                 button_2.event_when_pins_eq(1);

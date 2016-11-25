@@ -84,26 +84,30 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
     while (1) {
 
         select {
-        case read_done => farmer_orientation.pause():
+        case read_done => farmer_orientation.pause():
+            LOG(DBG, "farmer_orientation.pause()\n");
             play = 0;
             // TODO: calculate strip stats
             break;
         case read_done => farmer_orientation.play():
+            LOG(DBG, "farmer_orientation.play()\n");
             play = 1;
             break;
 
         // Start Read/Write from farmer_buttons
         case farmer_buttons.start_read():
+            LOG(DBG, "farmer_buttons.start_read()\n");
             reader_farmer.start_read();
             // Read in entire image
             while (!read_done) {
                 select {
                 case reader_farmer.dimensions(unsigned int _width, unsigned int _height):
+                    LOG(DBG, "reader_farmer.dimensions(%i, %i)\n", _width, _height);
                     width = _width;
                     height = _height;
 
                     if (height % workers) {
-                        LOG(ERR, "Error: incompatible height to workers ratio\n\n");
+                        LOG(ERR, "Error: incompatible height to workers ratio\n");
                         return;
                     }
                     working_strip_height = height / workers; // TODO put in variable length strips?
@@ -116,24 +120,30 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
                     break;
 
                 case reader_farmer.data(unsigned int data, int row_index, int int_index):
+                    LOG(DBG, "reader_farmer.data(%u, %i, %i)\n", data, row_index, int_index);
                     int strip_index = row_index / working_strip_height;
-                    worker_strips[strip_index][int_index] = data;
+                    int row_in_strip = (row_index % working_strip_height) + 1;
+                    worker_strips[strip_index][row_in_strip*ints_in_row + int_index] = data;
+                    printf("- strip_index: %i, row_in_strip: %i, int_in_strip: %i\n", strip_index, row_in_strip, int_index);
                     break;
                 case reader_farmer.read_done():
+                    LOG(DBG, "reader_farmer.read_done()\n");
                     read_done = 1;
                     break;
                 }
             }
             break; // start_read
 
-        case read_done => farmer_buttons.start_write():
+        case read_done => farmer_buttons.start_write():
+            LOG(DBG, "farmer_buttons.start_write()\n");
             farmer_writer.header(width, height);
 
             // For each worker; for each int in working strip; when ready send data
             for (int worker_id = 0; worker_id < workers; worker_id++) {
-                for (int int_index = first_working_row; int_index <= last_working_row; int_index++) {
+                for (int int_index = first_working_row; int_index < bottom_overlap_row; int_index++) {
                     select {
-                    case farner_writer.ready_for_data():
+                    case farmer_writer.ready_for_data():
+                        LOG(DBG, "farmer_writer.ready_for_data()\n");
                         unsigned int size = ((width % INT_SIZE) && (int_index % ints_in_row == ints_in_row - 1))
                                                 ? width % INT_SIZE
                                                 : INT_SIZE;
@@ -169,6 +179,7 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
             while (!workers_done) { // TODO: possible deadlock?
                 select {
                 case workers_farmer[int worker_id].tock():
+                    LOG(DBG, "workers_farmer[%i].tock()\n", worker_id);
                     workers_done--;
                     break;
                 }

@@ -12,9 +12,7 @@
 #define LOG(level, ...)                                                                                                \
     do {                                                                                                               \
         if (level <= DEBUG_LEVEL) {                                                                                    \
-            fprintf(stderr, "%s:%d:", __FILE__, __LINE__);                                                             \
             fprintf(stderr, __VA_ARGS__);                                                                              \
-            fprintf(stderr, "\n");                                                                                     \
             fflush(stderr);                                                                                            \
         }                                                                                                              \
     } while (0)
@@ -27,6 +25,11 @@ LOG(ERR, "err");
 LOG(WRN, "warn");
 LOG(IFO, "info");
 LOG(DBG, "dbg");
+*/
+
+/*
+fprintf(stderr, "%s:%d:", __FILE__, __LINE__);                                                             \
+fprintf(stderr, __VA_ARGS__);                                                                              \
 */
 
 #endif

@@ -25,6 +25,8 @@ int _openinpgm(char fname[], int max_width, int max_height, unsigned int dimensi
         printf("Input image size(%dx%d) > %dx%d or trouble reading header\n", inwidth, inheight, max_width, max_height);
         return 1;
     }
+    dimensions[0] = (unsigned int) inwidth;
+    dimensions[1] = (unsigned int) inheight;
     fgets(str, 64, _INFP); // bit depth, must be 255
     return 0;
 }
@@ -33,7 +35,7 @@ int _readinline(unsigned char line[], int width) {
     int nb;
 
     if (_INFP == NULL) {
-        return -1;
+        return 1;
     }
 
     nb = fread(line, 1, width, _INFP);
@@ -41,7 +43,7 @@ int _readinline(unsigned char line[], int width) {
     if (nb != width) {
         // printf( "Error reading line, nb = %d\n", nb );
         // Error or end of file
-        return -1;
+        return 1;
     }
     return 0;
 }

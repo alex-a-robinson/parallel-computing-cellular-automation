@@ -24,8 +24,8 @@ interface reader_farmer_if { // GREEN LED
 interface farmer_writer_if { // BLUE LED
     void header(int width, int height);
     [[notification]] slave void ready_for_data();
-    [clears_notification]] void data(unsigned int num, unsigned int size);
-    [void end_of_data();
+    [[clears_notification]] void data(unsigned int num, unsigned int size);
+    void end_of_data();
 };
 
 interface farmer_orientation_if { // RED LED

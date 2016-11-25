@@ -84,19 +84,10 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
     while (1) {
 
         select {
-        case farmer_orientation.pause():
-            LOG(IFO, "farmer_orientation.pause()\n");
-            play = 0;
-            // TODO: calculate strip stats
-            break;
-        case farmer_orientation.play():
-            LOG(IFO, "farmer_orientation.play()\n");
-            play = 1;
-            break;
-
         // Start Read/Write from farmer_buttons
         case farmer_buttons.start_read():
             LOG(IFO, "farmer_buttons.start_read()\n");
+            read_done = 0;
             reader_farmer.start_read();
             // Read in entire image
             while (!read_done) {
@@ -154,6 +145,17 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
             }
             farmer_writer.end_of_data();
             break; // start_write
+
+        case farmer_orientation.pause():
+            LOG(IFO, "farmer_orientation.pause()\n");
+            play = 0;
+            // TODO: calculate strip stats
+            break;
+        case farmer_orientation.play():
+            LOG(IFO, "farmer_orientation.play()\n");
+            play = 1;
+            break;
+
         default:
             break;// for if no buttons or orientation changed since last check
         }
@@ -187,7 +189,7 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
                 }
             }
             tick++;
-            LOG(IFO, ".");
+            if (tick%100 == 0) LOG(IFO, ".");
             led.output(tick % 2); // Blink LED, might not work
         }
     }

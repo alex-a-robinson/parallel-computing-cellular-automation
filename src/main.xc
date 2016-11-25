@@ -51,11 +51,11 @@ int main(void) {
         on tile[0] : button_control(farmer_buttons, i_explorer_buttons[0], i_explorer_buttons[1]);
 
         // NOTE: combine onto single core later?
-        on tile[0] : image_reader("images/test.pgm", reader_farmer, i_explorer_leds[2]);
-        on tile[0] : image_writer("images/testout.pgm", farmer_writer, i_explorer_leds[1]);
+        on tile[0] : image_reader("images/img_in.pgm", reader_farmer, i_explorer_leds[2]);
+        on tile[0] : image_writer("images/img_out.pgm", farmer_writer, i_explorer_leds[1]);
 
         // Farmer
-        on tile[1] : farmer(9, workers_farmer, MAX_WORKERS, farmer_buttons, i_explorer_leds[0], farmer_orientation,
+        on tile[0] : farmer(9, workers_farmer, MAX_WORKERS, farmer_buttons, i_explorer_leds[0], farmer_orientation,
                             reader_farmer, farmer_writer);
 
         // Workers

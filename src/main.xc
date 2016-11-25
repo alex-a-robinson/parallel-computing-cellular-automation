@@ -12,8 +12,12 @@
 #include "constants.h"
 #include "controls/controls.h"
 #include "image_processing/image_processing.h"
+
 #include "logic/farmer_interfaces.h"
-#include "logic/strip_farmer.h"
+#include "logic/strip_farmer/worker.h"
+#include "logic/strip_farmer/farmer.h"
+#include "logic/strip_farmer/worker_farmer_interface.h"
+
 #include "utils/debug.h"
 
 // Interface ports to orientation

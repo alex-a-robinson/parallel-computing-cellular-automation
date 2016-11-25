@@ -59,7 +59,7 @@ int main(void) {
         on tile[0] : image_writer("images/img_out.pgm", farmer_writer, i_explorer_leds[1]);
 
         // Farmer
-        on tile[0] : farmer(9, workers_farmer, MAX_WORKERS, farmer_buttons, i_explorer_leds[0], farmer_orientation,
+        on tile[1] : farmer(9, workers_farmer, MAX_WORKERS, farmer_buttons, i_explorer_leds[0], farmer_orientation,
                             reader_farmer, farmer_writer);
 
         // Workers

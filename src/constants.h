@@ -2,8 +2,7 @@
 #define CONSTANTS_H_
 
 // Type Constants
-//const static int INT_SIZE = sizeof(unsigned int)*8; //TODO test
-#define INT_SIZE 32
+#define INT_SIZE 32 // 32 bit ints
 #define MAX_INTS_IN_STRIP  3000 // TODO Optimise for memory, 512x512 grid for 4 workers is 2080
 #define MAX_WORKERS 4
 
@@ -23,6 +22,7 @@
 #define FXOS8700EQ_OUT_Z_MSB 0x5
 #define FXOS8700EQ_OUT_Z_LSB 0x6
 
-#define TILTED_ANGLE 40
+// Controls
+#define TILTED_ANGLE 40 // Pause/Play threshold angle, 40 degrees
 
 #endif /* CONSTANTS_H_ */

@@ -7,7 +7,7 @@
 #define IFO (4) // Info
 #define DBG (5) // Debug
 
-#define DEBUG_LEVEL (4)
+#define DEBUG_LEVEL (5)
 
 #define LOG(level, ...)                                                                                                \
     do {                                                                                                               \

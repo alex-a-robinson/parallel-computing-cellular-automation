@@ -10,9 +10,18 @@
 #include "utils/debug.h"
 
 // Initialise and  read orientation, send first tilt event to channel
+/* Orientaion control process function
+ * - Sends pause/play notificaiton on interface when angle toggles over TILTED_ANGLE
+ *
+ * Params:
+ *   client interface i2c_master_if i2c: Accelerometer interface to check
+ *   client interface farmer_orientation_if farmer_orientation: Farmer interface
+ *   client output_gpio_if led: LED interface to toggle on pause/play
+ */
 void orientation_control(client interface i2c_master_if i2c, client interface farmer_orientation_if farmer_orientation,
                          client output_gpio_if led) {
     LOG(IFO, "[x] Orientation_control init\n");
+
     i2c_regop_res_t result;
     char status_data = 0;
     int tilted = 0;
@@ -39,11 +48,12 @@ void orientation_control(client interface i2c_master_if i2c, client interface fa
         // Get new x-axis tilt value
         int x = read_acceleration(i2c, FXOS8700EQ_OUT_X_MSB);
 
-        if (!tilted && x > TILTED_ANGLE) {
+
+        if (!tilted && x > TILTED_ANGLE) { // If we are not currently tilted and over TILTED_ANGLE, pause
             tilted = 1;
             led.output(1);
             farmer_orientation.pause();
-        } else if (tilted && x <= TILTED_ANGLE) {
+        } else if (tilted && x <= TILTED_ANGLE) { // if we are currently tilted and under TILED_ANGLE, play
             tilted = 0;
             led.output(0);
             farmer_orientation.play();
@@ -51,32 +61,45 @@ void orientation_control(client interface i2c_master_if i2c, client interface fa
     }
 }
 
+/* Button control process function
+ *   - Wait for a button to press either start read or write
+ *
+ * Params:
+ *   client interface farmer_button_if farmer_buttons: interface to farmer
+ *   client input_gpio_if button_1: interface to button 1
+ *   client input_gpio_if button_2: interface to button 2
+ */
 void button_control(client interface farmer_button_if farmer_buttons, client input_gpio_if button_1,
                     client input_gpio_if button_2) {
     LOG(IFO, "[x] button_control init\n");
-    button_1.event_when_pins_eq(0); // TODO flip in simulation
+
+    // Setup event when pins=0
+    button_1.event_when_pins_eq(0);
     button_2.event_when_pins_eq(0);
 
     while (1) {
         select {
-        case button_1.event(): // Start image read
-            LOG(DBG, "button_1.event()\n");
-            if (button_1.input() == 0) {
-                farmer_buttons.start_read();
-                button_1.event_when_pins_eq(1);
-            } else {
-                button_1.event_when_pins_eq(0);
-            }
-            break;
-        case button_2.event(): // Start image write
-            LOG(DBG, "button_2.event()\n");
-            if (button_2.input() == 0) {
-                farmer_buttons.start_write();
-                button_2.event_when_pins_eq(1);
-            } else {
-                button_2.event_when_pins_eq(0);
-            }
-            break;
+            // On button 1 event
+            case button_1.event():
+                LOG(DBG, "button_1.event()\n");
+                if (button_1.input() == 0) {
+                    farmer_buttons.start_read();
+                    button_1.event_when_pins_eq(1);
+                } else {
+                    button_1.event_when_pins_eq(0);
+                }
+                break;
+
+            // On button 2 event
+            case button_2.event():
+                LOG(DBG, "button_2.event()\n");
+                if (button_2.input() == 0) {
+                    farmer_buttons.start_write();
+                    button_2.event_when_pins_eq(1);
+                } else {
+                    button_2.event_when_pins_eq(0);
+                }
+                break;
         }
     }
 }

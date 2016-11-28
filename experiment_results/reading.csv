@@ -62,3 +62,10 @@ char_to_int_bitfield, 512,
 char_to_int_bitfield, 512,
 char_to_int_bitfield, 512,
 char_to_int_bitfield, 512,
+
+
+read_same_tile, 64, 376836889
+read_same_tile, 64, 380844025
+read_same_tile, 64, 379002984
+
+read_same_tile, 128, 5831224442

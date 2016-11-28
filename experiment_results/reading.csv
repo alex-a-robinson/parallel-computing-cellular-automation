@@ -1,0 +1,64 @@
+char_to_int_array_to_bitfield, 16, 54094008
+char_to_int_array_to_bitfield, 16, 52234623
+char_to_int_array_to_bitfield, 16, 53650377
+char_to_int_array_to_bitfield, 16, 55410615
+char_to_int_array_to_bitfield, 16, 52327293
+char_to_int_array_to_bitfield, 16, 54678411
+
+char_to_int_array_to_bitfield, 64, 402504044
+char_to_int_array_to_bitfield, 64, 403918866
+char_to_int_array_to_bitfield, 64, 400456983
+char_to_int_array_to_bitfield, 64, 397435200
+char_to_int_array_to_bitfield, 64, 399999723
+char_to_int_array_to_bitfield, 64, 397645877
+
+
+char_to_int_array_to_bitfield, 128, 1484679987
+char_to_int_array_to_bitfield, 128, 1512377424
+char_to_int_array_to_bitfield, 128, 1508642061
+char_to_int_array_to_bitfield, 128, 1509150631
+char_to_int_array_to_bitfield, 128, 1513172863
+char_to_int_array_to_bitfield, 128, 1507787507
+
+char_to_int_array_to_bitfield, 256, 5955126249
+char_to_int_array_to_bitfield, 256, 5953112051
+char_to_int_array_to_bitfield, 256, 5936129242
+char_to_int_array_to_bitfield, 256, 5932616645
+char_to_int_array_to_bitfield, 256, 5932349893
+char_to_int_array_to_bitfield, 256, 5932569234
+
+
+char_to_int_bitfield, 16, 54709742
+char_to_int_bitfield, 16, 55318961
+char_to_int_bitfield, 16, 53874947
+char_to_int_bitfield, 16, 54641285
+char_to_int_bitfield, 16, 54993098
+char_to_int_bitfield, 16, 52642943
+
+char_to_int_bitfield, 64, 399118934
+char_to_int_bitfield, 64, 399962303
+char_to_int_bitfield, 64, 396434801
+char_to_int_bitfield, 64, 398653124
+char_to_int_bitfield, 64, 397926092
+char_to_int_bitfield, 64, 400471474
+
+char_to_int_bitfield, 128, 1507523407
+char_to_int_bitfield, 128, 1508075950
+char_to_int_bitfield, 128, 1508778682
+char_to_int_bitfield, 128, 1510806067
+char_to_int_bitfield, 128, 1510808540
+char_to_int_bitfield, 128, 1508402452
+
+char_to_int_bitfield, 256, 5860923582
+char_to_int_bitfield, 256, 5931425278
+char_to_int_bitfield, 256,
+char_to_int_bitfield, 256,
+char_to_int_bitfield, 256,
+char_to_int_bitfield, 256,
+
+char_to_int_bitfield, 512,
+char_to_int_bitfield, 512,
+char_to_int_bitfield, 512,
+char_to_int_bitfield, 512,
+char_to_int_bitfield, 512,
+char_to_int_bitfield, 512,

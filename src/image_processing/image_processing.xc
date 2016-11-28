@@ -33,31 +33,20 @@ void image_reader(char filename[], client interface reader_farmer_if reader_farm
                 unsigned char line_buffer[MAX_WIDTH] = {0}; // NOTE: potentially change to int buffer so know size, also move outside for optimisation
                 _readinline(line_buffer, width);
 
-                //for(int i=0; i<width; i++) printf("%c",line_buffer[i]);
+
 
                 for (int int_index = 0; int_index <= width/INT_SIZE; int_index += 1) {
-
-                    unsigned int bit_array_buffer[INT_SIZE]={0};// NOTE: also move outside for optimisation
+                    unsigned int int_buffer = 0;
                     unsigned int end_of_int = ((width % INT_SIZE) && (int_index % ints_in_row == ints_in_row - 1))
                                                   ? width % INT_SIZE
                                                   : INT_SIZE;
                     for (int bit_index = 0; bit_index < end_of_int; bit_index++) {
-                        bit_array_buffer[bit_index] = (line_buffer[int_index * (INT_SIZE-1) + bit_index]) ? 1:0; // TODO casting here?
+                        int cell_val =  (line_buffer[int_index * (INT_SIZE-1) + bit_index]) ? 1:0; // TODO casting here?
+                        int_buffer |= (cell_val << INT_SIZE - bit_index - 1);
                     }
-                    reader_farmer.data(array_to_bits(bit_array_buffer, INT_SIZE), line_index, int_index); // NOTE: possible lock?
+                    reader_farmer.data(int_buffer, line_index, int_index); // NOTE: possible lock?
                 }
             }
-
-            // TODO: faster reading by putting this into the bit above
-            // unsigned int array_to_bits(unsigned int array[], unsigned int n) {
-            //     unsigned int bits = 0;
-            //     for (unsigned int i = 0; i < n; i++) {
-            //         bits |= ((array[i] ? 1 : 0) << n - i - 1); // fills from right to left
-            //     }
-            //     return bits;
-            // }
-
-
 
             _closeinpgm();
             led.output(0);

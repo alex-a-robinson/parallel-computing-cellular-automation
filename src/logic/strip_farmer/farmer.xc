@@ -29,17 +29,21 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
 
 
     timer farmer_timer;
-    unsigned int time_since_read;
-    unsigned long tick_start_time, tick_stop_time;
+    unsigned int time_since_read, tick_start_time, tick_stop_time;
+
+    timer reader_timer;
+    unsigned int read_start_time, read_end_time;
 
     int play = 0;
     int tick = 0;
     int read_done = 0;
     while (1) {
-
         select {
         // Start Read/Write from farmer_buttons
         case farmer_buttons.start_read():
+
+            reader_timer :> read_start_time;
+
             LOG(IFO, "farmer_buttons.start_read()\n");
             read_done = 0;
             reader_farmer.start_read();
@@ -73,13 +77,15 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
                 case reader_farmer.read_done():
                     LOG(IFO, "reader_farmer.read_done()\n");
                     read_done = 1;
-                    tick = 0;
-                    play = 1;
-                    farmer_timer :> tick_start_time;
-                    time_since_read = 0;
                     break;
                 }
             }
+            tick = 0;
+            play = 1;
+            farmer_timer :> tick_start_time;
+            time_since_read = 0;
+            reader_timer :> read_end_time;
+            printf("%d\n", read_end_time-read_start_time);
             break; // start_read
 
         case read_done => farmer_buttons.start_write():

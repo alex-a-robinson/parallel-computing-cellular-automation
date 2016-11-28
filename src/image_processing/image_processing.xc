@@ -8,6 +8,49 @@
 #include "utils/utils.h" // for ceildiv
 #include "utils/debug.h"
 
+{int, int} read_file(char filename[], unsigned int worker_strips[][MAX_INTS_IN_STRIP], int workers) {
+    // Open PGM file
+    unsigned int dimensions[2] = {0}; //to pass into img writing c code, to get multivalue return
+    int failed_open = _openinpgm(filename, MAX_WIDTH, MAX_HEIGHT, dimensions);
+    if (failed_open) {
+        LOG(ERR, "Error opening %s for reading\n", filename);
+        return {-1, -1};
+    }
+    unsigned int width = dimensions[0]; //unpack img data
+    unsigned int height = dimensions[1];
+
+    int ints_in_row = ceil_div(width, INT_SIZE);
+
+    // For each line in the file
+    unsigned char line_buffer[MAX_WIDTH] = {0}; // NOTE: potentially change to int buffer so know size, also move outside for optimisation
+    for (int line_index = 0; line_index < height; line_index++) {
+        _readinline(line_buffer, width);
+        // For each int in the line
+        for (int int_index = 0; int_index <= width/INT_SIZE; int_index += 1) {
+            unsigned int int_buffer = 0;
+            unsigned int end_of_int = ((width % INT_SIZE) && (int_index % ints_in_row == ints_in_row - 1))
+                                          ? width % INT_SIZE
+                                          : INT_SIZE;
+
+            // For each bit in the int, copy from char, deals with padding
+            for (int bit_index = 0; bit_index < end_of_int; bit_index++) {
+                int cell_val =  (line_buffer[int_index * (INT_SIZE-1) + bit_index]) ? 1:0;
+                int_buffer |= (cell_val << INT_SIZE - bit_index - 1);
+            }
+
+            // Update the int in strip
+            int working_strip_height = height / workers;
+            int strip_index = line_index / working_strip_height;
+            int row_in_strip = (line_index % working_strip_height) + 1;
+            worker_strips[strip_index][row_in_strip*ints_in_row + int_index] = int_buffer;
+        }
+    }
+
+    // TODO LED lighting
+
+    return {width, height};
+}
+
 void image_reader(char filename[], client interface reader_farmer_if reader_farmer, client output_gpio_if led) {
     LOG(IFO, "[x] image_reader init\n");
     while (1) {

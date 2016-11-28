@@ -27,8 +27,11 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
     unsigned int worker_strips[workers][MAX_INTS_IN_STRIP] = {{0}};
     int live_cells[workers] = {0};
 
+
     timer farmer_timer;
-    unsigned long read_start_time, current_time;
+    unsigned int time_since_read;
+    unsigned long tick_start_time, tick_stop_time;
+
     int play = 0;
     int tick = 0;
     int read_done = 0;
@@ -72,7 +75,8 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
                     read_done = 1;
                     tick = 0;
                     play = 1;
-                    farmer_timer :> read_start_time;
+                    farmer_timer :> tick_start_time;
+                    time_since_read = 0;
                     break;
                 }
             }
@@ -99,17 +103,16 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
             farmer_writer.end_of_data();
             break; // start_write
 
-        case farmer_orientation.pause():
+        case read_done => farmer_orientation.pause():
             LOG(IFO, "farmer_orientation.pause()\n");
             play = 0;
             int total_live_cells = 0;
             for (int worker_id = 0; worker_id < workers; worker_id++) total_live_cells += live_cells[worker_id]; // TODO
-            farmer_timer :> current_time;
-            unsigned long elapsed_time = (current_time - read_start_time) / 10000; // TODO timing code is not right, overflow?
-            printf("tick: %i, live: %i, cyclces since read: %lu, cycles/tick: %u\n",
-                tick, total_live_cells, elapsed_time, elapsed_time / tick);
+            int time_per_tick = time_since_read/tick;
+            printf("tick: %d, live: %d, time since read: %d.%.02d, time/tick: %d.%.02d\n",
+                tick, total_live_cells, time_since_read/1000, time_since_read%1000, time_per_tick/1000, time_per_tick%1000);
             break;
-        case farmer_orientation.play():
+        case read_done => farmer_orientation.play():
             LOG(IFO, "farmer_orientation.play()\n");
             play = 1;
             break;
@@ -117,6 +120,8 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
         default:
             break;// for if no buttons or orientation changed since last check
         }
+
+
 
         if (read_done && play) {
             // system("clear"); DEBUG
@@ -138,6 +143,7 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
             }
 
             int workers_done = workers;
+
             while (!workers_done) { // TODO: possible deadlock?
                 select {
                 case workers_farmer[int worker_id].tock():
@@ -146,9 +152,14 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
                     break;
                 }
             }
+
             tick++;
             if (tick%100 == 0) LOG(IFO, ".");
             led.output(tick % 2); // Blink LED, might not work
+
+            farmer_timer :> tick_stop_time;
+            time_since_read += (tick_stop_time - tick_start_time)/100000; // milliseconds
+            farmer_timer :> tick_start_time;
         }
     }
 }

@@ -7,12 +7,11 @@
 #include "utils/debug.h"
 #include "utils/utils.h"
 
-#include "image_processing/image_processing.h"
-
 #include "logic/farmer_interfaces.h"
 #include "logic/strip_farmer/farmer.h"
 #include "logic/strip_farmer/worker.h"
 #include "logic/strip_farmer/worker_farmer_interface.h"
+
 
 #include "utils.xc" // DEBUGGING
 
@@ -42,32 +41,47 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
         select {
         // Start Read/Write from farmer_buttons
         case farmer_buttons.start_read():
-            LOG(IFO, "farmer_buttons.start_read()\n");
+
             reader_timer :> read_start_time;
 
-            // Read the image in
-            {width, height} = read_file("images/img_in.pgm", worker_strips, workers); // TODO filename
+            LOG(IFO, "farmer_buttons.start_read()\n");
+            read_done = 0;
+            reader_farmer.start_read();
+            // Read in entire image
+            while (!read_done) {
+                select {
+                case reader_farmer.dimensions(unsigned int _width, unsigned int _height):
+                    LOG(DBG, "reader_farmer.dimensions(%i, %i)\n", _width, _height);
+                    width = _width;
+                    height = _height;
 
-            // Check compatible worker to height ratio
-            if (height % workers) {
-                LOG(ERR, "Error: incompatible height to workers ratio\n");
-                return;
+                    if (height % workers) {
+                        LOG(ERR, "Error: incompatible height to workers ratio\n");
+                        return;
+                    }
+                    working_strip_height = height / workers; // TODO put in variable length strips?
+                    ints_in_row = ceil_div(width, INT_SIZE);
+                    top_overlap_row = 0;
+                    first_working_row = ints_in_row;
+                    last_working_row = ints_in_row * working_strip_height;
+                    bottom_overlap_row = ints_in_row * (working_strip_height + 1);
+                    // TODO add availabile_workers when different
+                    break;
+
+                case reader_farmer.data(unsigned int data, int row_index, int int_index):
+                    LOG(DBG, "reader_farmer.data(%u, %i, %i)\n", data, row_index, int_index);
+                    int strip_index = row_index / working_strip_height;
+                    int row_in_strip = (row_index % working_strip_height) + 1;
+                    worker_strips[strip_index][row_in_strip*ints_in_row + int_index] = data;
+                    break;
+                case reader_farmer.read_done():
+                    LOG(IFO, "reader_farmer.read_done()\n");
+                    read_done = 1;
+                    break;
+                }
             }
-
-            // Calculate strip varibles
-            working_strip_height = height / workers; // TODO put in variable length strips?
-            ints_in_row = ceil_div(width, INT_SIZE);
-            top_overlap_row = 0;
-            first_working_row = ints_in_row;
-            last_working_row = ints_in_row * working_strip_height;
-            bottom_overlap_row = ints_in_row * (working_strip_height + 1);
-
-            // Reset game varibles
             tick = 0;
             play = 1;
-            read_done = 1;
-
-            // Reset timers
             farmer_timer :> tick_start_time;
             time_since_read = 0;
             reader_timer :> read_end_time;

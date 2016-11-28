@@ -7,7 +7,7 @@
 #define IFO (4) // Info
 #define DBG (5) // Debug
 
-#define DEBUG_LEVEL (5)
+#define DEBUG_LEVEL (4)
 
 #define LOG(level, ...)                                                                                                \
     do {                                                                                                               \
@@ -25,11 +25,6 @@ LOG(ERR, "err");
 LOG(WRN, "warn");
 LOG(IFO, "info");
 LOG(DBG, "dbg");
-*/
-
-/*
-fprintf(stderr, "%s:%d:", __FILE__, __LINE__);                                                             \
-fprintf(stderr, __VA_ARGS__);                                                                              \
 */
 
 #endif

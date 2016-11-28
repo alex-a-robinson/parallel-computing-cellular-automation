@@ -1,5 +1,3 @@
-// Main program
-
 #include <platform.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,8 +54,8 @@ int main(void) {
 
         // Reader/Writer cores
         // NOTE: combine onto single core later?
-        on tile[0] : image_reader("images/img_in.pgm", reader_farmer, i_explorer_leds[2]);
-        on tile[0] : image_writer("images/img_out.pgm", farmer_writer, i_explorer_leds[1]);
+        on tile[0] : image_reader(INPUT_FILENAME, reader_farmer, i_explorer_leds[2]);
+        on tile[0] : image_writer(OUTPUT_FILENAME, farmer_writer, i_explorer_leds[1]);
 
         // Farmer core
         on tile[1] : farmer(9, workers_farmer, MAX_WORKERS, farmer_buttons, i_explorer_leds[0], farmer_orientation,

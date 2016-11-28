@@ -9,6 +9,8 @@
 // Image Constants
 #define MAX_WIDTH 1024 // Image height
 #define MAX_HEIGHT 1024 // Image width
+#define INPUT_FILENAME "images/img_in.pgm"
+#define OUTPUT_FILENAME "images/img_out.pgm"
 
 // Orientation
 #define FXOS8700EQ_I2C_ADDR 0x1E  // register addresses for orientation

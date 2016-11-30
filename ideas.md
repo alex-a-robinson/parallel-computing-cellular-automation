@@ -1,5 +1,52 @@
 Strip swapper
 
+# TODO
+* create strip in each worker
+* create new interfaces for farmers and workers
+  * tick()
+  * tock()
+  * set(data, index)
+  * get(index)
+  * get_done() -> {data, index}
+* create overlaps in farmers
+* create swapping logic
+
+# COMUNICATON LOGIC
+
+def farmer:
+    case read:
+        while(read):
+            case read.read_data(data, index):
+                worker_to_set = ?
+                index_to_set = ?
+                workers[worker_to_set].set(data, index_to_set)
+                # NOTE can also do overlaps here
+
+    case write:
+        # TODO
+
+    while (workers_left):
+        case workers[int id].tock():
+            workers_left--
+
+    for bottom in 2:
+        for int_index in row:
+            for id in workers:
+                worker[id].get(int_index)
+
+            workers_left = workers
+            while(workers_left):
+                case worker[int id].get_done() -> {data, index}:
+                    if (top):
+                        rel_index = ?
+                        worker[id--].set(data, rel_index)
+                        workers_left--;
+
+
+
+
+# ----
+
 Farmer:
 top_overlap[max_workers] = [
     w0,
@@ -48,15 +95,18 @@ while (1):
             workers_left--
 
     # Swap neighbour rows
-    temp_top = top_overlap[0]
-    temp_bottom = bottom_overlap[0]
-    for id in workers--:
-        top_overlap[id] = bottom_overlap[id++]
+    prev_bottom = bottom_overlap[0]
+    first_top = top_overlap[0]
+    second_top = top_overlap[1]
+    for id=1 in workers--:
+        top_overlap[id] = prev_bottom
+        prev_bottom = bottom_overlap[id]
         bottom_overlap[id] = top_overlap[id++]
-    top_overlap[workers] = temp_top
-    bottom_overlap[workers] = temp_bottom
 
-
+    top_overlap[0] = bottom_overlap[workers]
+    bottom_overlap[0] = second_top
+    top_overlap[workers] = prev_bottom
+    bottom_overlap[workers] = first_top
 
 ---
 
@@ -84,7 +134,7 @@ def worker:
         # Do work
 
         # Copy working rows to overlaps
-        memcopy(strip[bottom_working_row], top_overlap)
-        memcopy(strip[top_working_row], bottom_overlap)
+        memcopy(strip[bottom_working_row], bottom_overlap)
+        memcopy(strip[top_working_row], top_overlap)
 
         farmer.tock()

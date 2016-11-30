@@ -63,7 +63,6 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
                 // Wait for a response from reader interface while we're not done
                 while (!read_done) {
                     select {
-
                         // Read the dimensions, update strip varibles
                         case reader_farmer.dimensions(unsigned int _width, unsigned int _height):
                             LOG(DBG, "reader_farmer.dimensions(%i, %i)\n", _width, _height);
@@ -142,17 +141,17 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
             // When paused
             case read_done => farmer_orientation.pause():
                 LOG(IFO, "farmer_orientation.pause()\n");
-
                 play = 0;
+
+                int time_per_tick = time_since_read / tick;
 
                 // Calculate num live cells by summing live_cells
                 int total_live_cells = 0;
                 for (int worker_id = 0; worker_id < workers; worker_id++) total_live_cells += live_cells[worker_id];
 
-                int time_per_tick = time_since_read / tick;
-
                 printf("tick: %d, live: %d, time since read: %d.%.02d, time/tick: %d.%.02d\n",
                     tick, total_live_cells, time_since_read/1000, time_since_read%1000, time_per_tick/1000, time_per_tick%1000);
+
                 break;
 
             // When play
@@ -166,7 +165,7 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
                 break;
         }
 
-        // Continue if paused
+        // contiue if paused
         if (!play) {
             continue;
         }
@@ -211,5 +210,6 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
         farmer_timer :> tick_start_time;
 
         if (tick%100 == 0) LOG(IFO, ".");
+        }
     }
 }

@@ -3,7 +3,6 @@
 #include "utils.h"
 #include <stdio.h>
 
-/*
 void test_calc_cell() {
     printf("-- calc_cell --\n");
 
@@ -65,4 +64,3 @@ void test_strip_farmer() {
     test_worker();
     printf("========\n\n");
 }
-*/

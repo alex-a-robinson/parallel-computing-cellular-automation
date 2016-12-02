@@ -83,6 +83,7 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
                             first_working_row = ints_in_row;
                             last_working_row = ints_in_row * working_strip_height;
                             bottom_overlap_row = ints_in_row * (working_strip_height + 1);
+
                             break;
 
                         // Read data from the reader
@@ -209,7 +210,6 @@ void farmer(int id, client interface worker_farmer_if workers_farmer[workers], s
         time_since_read += (tick_stop_time - tick_start_time) / 100000; // milliseconds
         farmer_timer :> tick_start_time;
 
-        if (tick%100 == 0) LOG(IFO, ".");
-        }
+        if (tick%100 == 0)LOG(IFO, ".");
     }
 }
